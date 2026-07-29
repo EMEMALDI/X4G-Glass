@@ -583,6 +583,7 @@ async def make_link(
     port: int = DEFAULT_PORT,
     ip_limit: int = 0,
     speed_limit_bytes: int = 0,
+    gaming_mode: bool = False,
 ) -> tuple[str, dict]:
     if protocol not in PROTOCOLS:
         protocol = DEFAULT_PROTOCOL
@@ -608,6 +609,7 @@ async def make_link(
             "port": port,
             "ip_limit": max(0, ip_limit),
             "speed_limit_bytes": max(0, speed_limit_bytes),
+            "gaming_mode": bool(gaming_mode),
         }
     asyncio.create_task(save_state())
     log_activity("link", f"کانفیگ «{LINKS[uid]['label']}» ساخته شد", "ok")
@@ -666,6 +668,7 @@ async def create_link(request: Request, _=Depends(require_auth)):
         port=port,
         ip_limit=ip_limit,
         speed_limit_bytes=speed_limit_bytes,
+        gaming_mode=bool(body.get("gaming_mode")),
     )
 
     host = get_host(request)
@@ -747,7 +750,9 @@ async def update_link(uid: str, request: Request, _=Depends(require_auth)):
             link["speed_limit_bytes"] = 0 if sv <= 0 else parse_speed_to_bytes(sv, su)
             from speed_limit import reset_bucket
             reset_bucket(uid)
-        if any(k in body for k in ("label", "note", "limit_value", "expires_days", "fingerprint", "alpn", "port", "ip_limit", "speed_limit_value")):
+        if "gaming_mode" in body:
+            link["gaming_mode"] = bool(body["gaming_mode"])
+        if any(k in body for k in ("label", "note", "limit_value", "expires_days", "fingerprint", "alpn", "port", "ip_limit", "speed_limit_value", "gaming_mode")):
             log_activity("link", f"کانفیگ «{link['label']}» ویرایش شد", "info")
 
     asyncio.create_task(save_state())
