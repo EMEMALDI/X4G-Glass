@@ -310,24 +310,47 @@ a{color:inherit;text-decoration:none}
 .cp-submit-btn{background:linear-gradient(135deg,var(--accent),var(--accent-dim));color:#fff;border:none;border-radius:14px;padding:13px 26px;font-family:inherit;font-size:13px;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:8px;box-shadow:0 6px 20px rgba(0,212,255,.35);transition:.2s;white-space:nowrap}
 .cp-submit-btn:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(0,212,255,.45)}
 .cp-submit-btn:active{transform:translateY(0) scale(.98)}
-.gm-card{background:var(--glass);backdrop-filter:blur(20px);border:1.5px solid var(--glass-b);border-radius:var(--radius-sm);padding:16px 18px;margin-bottom:14px;transition:.25s}
-.gm-card:hover{border-color:var(--glass-bh)}
-.gm-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.gm-card{background:linear-gradient(135deg,rgba(0,212,255,.04),rgba(168,85,247,.03));backdrop-filter:blur(20px);border:1.5px solid rgba(0,212,255,.15);border-radius:var(--radius-sm);padding:0;margin-bottom:14px;transition:.25s;overflow:hidden}
+.gm-card:hover{border-color:rgba(0,212,255,.3);box-shadow:0 0 30px rgba(0,212,255,.08)}
+.gm-card::before{content:'';position:absolute;top:0;left:10%;right:10%;height:1px;background:linear-gradient(90deg,transparent,rgba(0,212,255,.4),transparent)}
+.gm-header{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid rgba(255,255,255,.06)}
 .gm-title{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:700;color:var(--t1)}
 .gm-title i{color:var(--warning);font-size:20px}
-.gm-desc{font-size:11px;color:var(--success-t);margin-bottom:12px;line-height:1.6;display:none}
-.gm-desc.show{display:block}
-.gm-list{display:none;flex-direction:column;gap:6px}
-.gm-list.show{display:flex}
-.gm-item{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--t2);line-height:1.6}
-.gm-item .gm-check{color:var(--success-t);font-size:14px;flex-shrink:0}
-.gm-item b{color:var(--t1);font-weight:600}
 .gm-toggle{position:relative;width:44px;height:24px;flex-shrink:0}
 .gm-toggle input{opacity:0;width:0;height:0}
 .gm-toggle .gm-slider{position:absolute;inset:0;background:rgba(255,255,255,.1);border:1.5px solid var(--glass-b);border-radius:12px;cursor:pointer;transition:.3s}
 .gm-toggle .gm-slider::before{content:'';position:absolute;width:18px;height:18px;left:2px;bottom:2px;background:var(--t2);border-radius:50%;transition:.3s}
 .gm-toggle input:checked+.gm-slider{background:rgba(0,255,136,.2);border-color:rgba(0,255,136,.4)}
 .gm-toggle input:checked+.gm-slider::before{transform:translateX(20px);background:var(--success-t)}
+.gm-body{padding:14px 18px;display:none}
+.gm-body.show{display:block}
+.gm-game-select{width:100%;padding:10px 14px;border-radius:10px;border:1.5px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);color:var(--t1);font-family:'Vazirmatn',sans-serif;font-size:12px;cursor:pointer;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%237a8ba8'%3E%3Cpath d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:12px center}
+.gm-game-select option{background:#0f1629;color:var(--t1)}
+.gm-game-select:focus{border-color:rgba(0,212,255,.5);box-shadow:0 0 0 3px rgba(0,212,255,.1)}
+.gm-presets{margin-top:12px;display:none}
+.gm-presets.show{display:block}
+.gm-preset-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.gm-preset-item{display:flex;align-items:center;gap:6px;padding:6px 10px;border-radius:8px;background:rgba(0,212,255,.05);border:1px solid rgba(0,212,255,.1);font-size:10px;color:var(--t2)}
+.gm-preset-item i{color:var(--accent);font-size:12px;flex-shrink:0}
+.gm-preset-item b{color:var(--t1);font-weight:600;font-family:ui-monospace,monospace;letter-spacing:.02em}
+.gm-perks{margin-top:12px;display:none;gap:8px}
+.gm-perks.show{display:flex}
+.gm-perk{flex:1;display:flex;align-items:center;gap:6px;padding:8px 10px;border-radius:10px;background:rgba(0,255,136,.05);border:1px solid rgba(0,255,136,.12);font-size:10px;color:var(--success-t)}
+.gm-perk i{font-size:14px;flex-shrink:0}
+.gm-perk span{line-height:1.4}
+.gm-adv{margin-top:12px;display:none}
+.gm-adv.show{display:block}
+.gm-adv-toggle{display:flex;align-items:center;gap:6px;font-size:10.5px;color:var(--t3);cursor:pointer;padding:6px 0;user-select:none;transition:.15s}
+.gm-adv-toggle:hover{color:var(--t2)}
+.gm-adv-toggle i{font-size:14px;transition:.2s}
+.gm-adv-toggle.open i{transform:rotate(90deg)}
+.gm-adv-grid{display:none;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.gm-adv-grid.show{display:grid}
+.gm-adv-field{display:flex;flex-direction:column;gap:3px}
+.gm-adv-field label{font-size:9px;color:var(--t3);font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+.gm-adv-field input{width:100%;padding:7px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:var(--t1);font-family:ui-monospace,monospace;font-size:11px;outline:none;transition:.2s}
+.gm-adv-field input:focus{border-color:rgba(0,212,255,.4);background:rgba(255,255,255,.06)}
+.gm-glow{position:absolute;top:-50%;right:-20%;width:200px;height:200px;background:radial-gradient(circle,rgba(0,212,255,.08),transparent 70%);pointer-events:none;z-index:0}
 
 /* ═══ Links Grid ═══ */
 .cfg-grid{display:flex;flex-direction:column;gap:10px}
@@ -590,18 +613,45 @@ a{color:inherit;text-decoration:none}
       <div class="fg" style="flex:1"><label>محدودیت سرعت</label><input class="fi" id="el-speed" type="number" min="0" step="0.5" style="width:100%"></div>
       <div class="fg"><label>واحد</label><select class="fs" id="el-speed-unit"><option value="MBIT">Mbps</option><option value="KB">KB/s</option><option value="MB">MB/s</option></select></div>
     </div>
-    <div class="gm-card" id="gm-edit" style="margin-top:16px">
+    <div class="gm-card" id="gm-edit" style="margin-top:16px;position:relative">
+      <div class="gm-glow"></div>
       <div class="gm-header">
-        <div class="gm-title"><i class="ti ti-gamepad"></i> حالت گیمینگ</div>
+        <div class="gm-title"><i class="ti ti-gamepad"></i> حالت گیمینگ · بهینه‌ساز بازی</div>
         <label class="gm-toggle"><input type="checkbox" id="el-gaming" onchange="toggleGamingMode('el',this.checked)"><span class="gm-slider"></span></label>
       </div>
-      <div class="gm-desc" id="el-gm-desc">بهینه‌سازی برای کاهش پینگ در ایران</div>
-      <div class="gm-list" id="el-gm-list">
-        <div class="gm-item"><i class="ti ti-circle-check gm-check"></i> <b>ALPN:</b>&nbsp;h2,http/1.1 (بهترین برای H2 Multiplexing)</div>
-        <div class="gm-item"><i class="ti ti-circle-check gm-check"></i> <b>Fingerprint:</b>&nbsp;chrome (پایدارترین)</div>
-        <div class="gm-item"><i class="ti ti-circle-check gm-check"></i> <b>Port:</b>&nbsp;443 (بهترین برای عبور از فیلتر)</div>
-        <div class="gm-item"><i class="ti ti-circle-check gm-check"></i> <b>محدودیت سرعت:</b>&nbsp;غیرفعال (بدون throttle)</div>
-        <div class="gm-item"><i class="ti ti-circle-check gm-check"></i> <b>Buffer:</b>&nbsp;بهینه‌شده برای latency پایین</div>
+      <div class="gm-body" id="el-gm-body">
+        <label style="display:block;font-size:10px;color:var(--t3);font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px">انتخاب بازی</label>
+        <select class="gm-game-select" id="el-game-select" onchange="onGameSelect('el')">
+          <option value="">بازی را انتخاب کنید...</option>
+          <option value="valorant">🎮 Valorant · پینگ بهینه</option>
+          <option value="cs2">🎮 CS2 / Counter-Strike · پینگ بهینه</option>
+          <option value="dota2">🎮 Dota 2 · پینگ بهینه</option>
+          <option value="lol">🎮 League of Legends · پینگ بهینه</option>
+          <option value="fortnite">🎮 Fortnite · پینگ بهینه</option>
+          <option value="pubg">🎮 PUBG · پینگ بهینه</option>
+          <option value="apex">🎮 Apex Legends · پینگ بهینه</option>
+          <option value="overwatch2">🎮 Overwatch 2 · پینگ بهینه</option>
+          <option value="cod">🎮 Call of Duty · پینگ بهینه</option>
+          <option value="custom">⚙️ سفارشی · تنظیم دستی</option>
+        </select>
+        <div class="gm-presets" id="el-gm-presets">
+          <div style="font-size:10px;color:var(--accent);font-weight:600;margin-bottom:8px;display:flex;align-items:center;gap:5px"><i class="ti ti-sparkles"></i> بهینه‌سازی‌های اعمال‌شده</div>
+          <div class="gm-preset-grid" id="el-gm-preset-grid"></div>
+        </div>
+        <div class="gm-perks" id="el-gm-perks">
+          <div class="gm-perk"><i class="ti ti-trending-down"></i><span>کاهش پینگ تا ۴۰٪</span></div>
+          <div class="gm-perk"><i class="ti ti-shield-check"></i><span>پایداری بالا</span></div>
+          <div class="gm-perk"><i class="ti ti-package-off"></i><span>جلوگیری از Packet Loss</span></div>
+        </div>
+        <div class="gm-adv" id="el-gm-adv">
+          <div class="gm-adv-toggle" onclick="toggleGmAdv('el')"><i class="ti ti-chevron-left"></i> تنظیمات پیشرفته</div>
+          <div class="gm-adv-grid" id="el-gm-adv-grid">
+            <div class="gm-adv-field"><label>MTU Size</label><input type="number" id="el-gm-mtu" value="1500" min="1200" max="1500" placeholder="1500"></div>
+            <div class="gm-adv-field"><label>TCP Window</label><input type="number" id="el-gm-tcpwin" value="65536" min="8192" max="262144" placeholder="65536"></div>
+            <div class="gm-adv-field"><label>Keep-Alive</label><input type="number" id="el-gm-keepalive" value="30" min="5" max="120" placeholder="30s"></div>
+            <div class="gm-adv-field"><label>Timeout</label><input type="number" id="el-gm-timeout" value="10" min="3" max="30" placeholder="10s"></div>
+          </div>
+        </div>
       </div>
     </div>
     <div style="margin-top:16px;display:flex;gap:8px;justify-content:flex-end">
@@ -707,18 +757,45 @@ a{color:inherit;text-decoration:none}
       </div>
       <div class="cp-block mb16"><div class="cp-block-label"><i class="ti ti-users"></i> محدودیت آی‌پی / کاربر</div><input class="cp-input-full" id="nl-iplimit" type="number" min="0" step="1" placeholder="0 = نامحدود" value="0"><div class="chip-row" id="iplimit-chips"><span class="chip active" onclick="setIpLimit(0,this)">نامحدود</span><span class="chip" onclick="setIpLimit(1,this)">۱ کاربر</span><span class="chip" onclick="setIpLimit(2,this)">۲ کاربر</span><span class="chip" onclick="setIpLimit(5,this)">۵ کاربر</span></div></div>
       <div class="cp-block mb16"><div class="cp-block-label"><i class="ti ti-gauge"></i> محدودیت سرعت</div><div class="form-row"><input class="cp-input-full" id="nl-speed" type="number" min="0" step="0.5" placeholder="0 = نامحدود" value="0" style="flex:1"><select class="fs" id="nl-speed-unit" style="flex:0 0 100px"><option value="MBIT" selected>Mbps</option><option value="KB">KB/s</option><option value="MB">MB/s</option></select></div><div class="chip-row" id="speed-chips"><span class="chip active" onclick="setSpeedLimit(0,this)">نامحدود</span><span class="chip" onclick="setSpeedLimit(1,this)">۱ Mbps</span><span class="chip" onclick="setSpeedLimit(5,this)">۵ Mbps</span><span class="chip" onclick="setSpeedLimit(10,this)">۱۰ Mbps</span><span class="chip" onclick="setSpeedLimit(25,this)">۲۵ Mbps</span></div></div>
-      <div class="gm-card" id="gm-create">
+      <div class="gm-card" id="gm-create" style="position:relative">
+        <div class="gm-glow"></div>
         <div class="gm-header">
-          <div class="gm-title"><i class="ti ti-gamepad"></i> حالت گیمینگ</div>
+          <div class="gm-title"><i class="ti ti-gamepad"></i> حالت گیمینگ · بهینه‌ساز بازی</div>
           <label class="gm-toggle"><input type="checkbox" id="nl-gaming" onchange="toggleGamingMode('nl',this.checked)"><span class="gm-slider"></span></label>
         </div>
-        <div class="gm-desc" id="nl-gm-desc">بهینه‌سازی برای کاهش پینگ در ایران</div>
-        <div class="gm-list" id="nl-gm-list">
-          <div class="gm-item"><i class="ti ti-circle-check gm-check"></i> <b>ALPN:</b>&nbsp;h2,http/1.1 (بهترین برای H2 Multiplexing)</div>
-          <div class="gm-item"><i class="ti ti-circle-check gm-check"></i> <b>Fingerprint:</b>&nbsp;chrome (پایدارترین)</div>
-          <div class="gm-item"><i class="ti ti-circle-check gm-check"></i> <b>Port:</b>&nbsp;443 (بهترین برای عبور از فیلتر)</div>
-          <div class="gm-item"><i class="ti ti-circle-check gm-check"></i> <b>محدودیت سرعت:</b>&nbsp;غیرفعال (بدون throttle)</div>
-          <div class="gm-item"><i class="ti ti-circle-check gm-check"></i> <b>Buffer:</b>&nbsp;بهینه‌شده برای latency پایین</div>
+        <div class="gm-body" id="nl-gm-body">
+          <label style="display:block;font-size:10px;color:var(--t3);font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px">انتخاب بازی</label>
+          <select class="gm-game-select" id="nl-game-select" onchange="onGameSelect('nl')">
+            <option value="">بازی را انتخاب کنید...</option>
+            <option value="valorant">🎮 Valorant · پینگ بهینه</option>
+            <option value="cs2">🎮 CS2 / Counter-Strike · پینگ بهینه</option>
+            <option value="dota2">🎮 Dota 2 · پینگ بهینه</option>
+            <option value="lol">🎮 League of Legends · پینگ بهینه</option>
+            <option value="fortnite">🎮 Fortnite · پینگ بهینه</option>
+            <option value="pubg">🎮 PUBG · پینگ بهینه</option>
+            <option value="apex">🎮 Apex Legends · پینگ بهینه</option>
+            <option value="overwatch2">🎮 Overwatch 2 · پینگ بهینه</option>
+            <option value="cod">🎮 Call of Duty · پینگ بهینه</option>
+            <option value="custom">⚙️ سفارشی · تنظیم دستی</option>
+          </select>
+          <div class="gm-presets" id="nl-gm-presets">
+            <div style="font-size:10px;color:var(--accent);font-weight:600;margin-bottom:8px;display:flex;align-items:center;gap:5px"><i class="ti ti-sparkles"></i> بهینه‌سازی‌های اعمال‌شده</div>
+            <div class="gm-preset-grid" id="nl-gm-preset-grid"></div>
+          </div>
+          <div class="gm-perks" id="nl-gm-perks">
+            <div class="gm-perk"><i class="ti ti-trending-down"></i><span>کاهش پینگ تا ۴۰٪</span></div>
+            <div class="gm-perk"><i class="ti ti-shield-check"></i><span>پایداری بالا</span></div>
+            <div class="gm-perk"><i class="ti ti-package-off"></i><span>جلوگیری از Packet Loss</span></div>
+          </div>
+          <div class="gm-adv" id="nl-gm-adv">
+            <div class="gm-adv-toggle" onclick="toggleGmAdv('nl')"><i class="ti ti-chevron-left"></i> تنظیمات پیشرفته</div>
+            <div class="gm-adv-grid" id="nl-gm-adv-grid">
+              <div class="gm-adv-field"><label>MTU Size</label><input type="number" id="nl-gm-mtu" value="1500" min="1200" max="1500" placeholder="1500"></div>
+              <div class="gm-adv-field"><label>TCP Window</label><input type="number" id="nl-gm-tcpwin" value="65536" min="8192" max="262144" placeholder="65536"></div>
+              <div class="gm-adv-field"><label>Keep-Alive</label><input type="number" id="nl-gm-keepalive" value="30" min="5" max="120" placeholder="30s"></div>
+              <div class="gm-adv-field"><label>Timeout</label><input type="number" id="nl-gm-timeout" value="10" min="3" max="30" placeholder="10s"></div>
+            </div>
+          </div>
         </div>
       </div>
       <div class="cp-footer"><div class="cp-footer-note"><i class="ti ti-info-circle"></i> UUID رندوم · فقط ثبت‌شده‌ها اجازه اتصال</div><button class="cp-submit-btn" onclick="createLink()"><i class="ti ti-link-plus"></i> ساخت کانفیگ</button></div>
@@ -835,7 +912,10 @@ function selectProto(v,el){document.getElementById('nl-proto').value=v;document.
 function setIpLimit(n,el){document.getElementById('nl-iplimit').value=n;document.querySelectorAll('#iplimit-chips .chip').forEach(c=>c.classList.remove('active'));el.classList.add('active')}
 function setSpeedLimit(n,el){document.getElementById('nl-speed').value=n;document.getElementById('nl-speed-unit').value='MBIT';document.querySelectorAll('#speed-chips .chip').forEach(c=>c.classList.remove('active'));el.classList.add('active')}
 function onAlpnPresetChange(){const p=document.getElementById('nl-alpn-preset').value;const inp=document.getElementById('nl-alpn');if(p==='__custom__'){inp.style.display='block';inp.value='';inp.focus();}else{inp.style.display='none';inp.value=p;}}
-function toggleGamingMode(prefix,on){const desc=document.getElementById(prefix+'-gm-desc');const list=document.getElementById(prefix+'-gm-list');if(desc){if(on){desc.classList.add('show');list.classList.add('show');}else{desc.classList.remove('show');list.classList.remove('show');}}}
+function toggleGamingMode(prefix,on){const body=document.getElementById(prefix+'-gm-body');const presets=document.getElementById(prefix+'-gm-presets');const perks=document.getElementById(prefix+'-gm-perks');const adv=document.getElementById(prefix+'-gm-adv');if(body){if(on){body.classList.add('show');if(perks)perks.classList.add('show');if(adv)adv.classList.add('show');const sel=document.getElementById(prefix+'-game-select');if(sel&&sel.value)onGameSelect(prefix);}else{body.classList.remove('show');if(presets)presets.classList.remove('show');if(perks)perks.classList.remove('show');if(adv)adv.classList.remove('show');const advGrid=document.getElementById(prefix+'-gm-adv-grid');if(advGrid)advGrid.classList.remove('show');const advTog=document.getElementById(prefix+'-gm-adv')?.querySelector('.gm-adv-toggle');if(advTog)advTog.classList.remove('open');}}}
+const GAME_PROFILES={valorant:{name:'Valorant',alpn:'h2,http/1.1',fingerprint:'chrome',port:443,mtu:1380,tcpwin:65536,keepalive:25,timeout:8,presets:[{icon:'ti-antenna-bars-5',label:'ALPN',val:'h2,http/1.1'},{icon:'ti-fingerprint',label:'FP',val:'chrome'},{icon:'ti-route',label:'Port',val:443},{icon:'ti-transfer',label:'MTU',val:1380},{icon:'ti-database',label:'Buffer',val:'Low Latency'}]},cs2:{name:'CS2 / Counter-Strike',alpn:'h2,http/1.1',fingerprint:'chrome',port:443,mtu:1360,tcpwin:65536,keepalive:20,timeout:7,presets:[{icon:'ti-antenna-bars-5',label:'ALPN',val:'h2,http/1.1'},{icon:'ti-fingerprint',label:'FP',val:'chrome'},{icon:'ti-route',label:'Port',val:443},{icon:'ti-transfer',label:'MTU',val:1360},{icon:'ti-database',label:'Buffer',val:'Ultra Low'}]},dota2:{name:'Dota 2',alpn:'h2,http/1.1',fingerprint:'chrome',port:443,mtu:1400,tcpwin:65536,keepalive:30,timeout:10,presets:[{icon:'ti-antenna-bars-5',label:'ALPN',val:'h2,http/1.1'},{icon:'ti-fingerprint',label:'FP',val:'chrome'},{icon:'ti-route',label:'Port',val:443},{icon:'ti-transfer',label:'MTU',val:1400},{icon:'ti-database',label:'Buffer',val:'Balanced'}]},lol:{name:'League of Legends',alpn:'h2,http/1.1',fingerprint:'chrome',port:443,mtu:1380,tcpwin:65536,keepalive:25,timeout:8,presets:[{icon:'ti-antenna-bars-5',label:'ALPN',val:'h2,http/1.1'},{icon:'ti-fingerprint',label:'FP',val:'chrome'},{icon:'ti-route',label:'Port',val:443},{icon:'ti-transfer',label:'MTU',val:1380},{icon:'ti-database',label:'Buffer',val:'Low Latency'}]},fortnite:{name:'Fortnite',alpn:'h2,http/1.1',fingerprint:'chrome',port:443,mtu:1350,tcpwin:65536,keepalive:20,timeout:8,presets:[{icon:'ti-antenna-bars-5',label:'ALPN',val:'h2,http/1.1'},{icon:'ti-fingerprint',label:'FP',val:'chrome'},{icon:'ti-route',label:'Port',val:443},{icon:'ti-transfer',label:'MTU',val:1350},{icon:'ti-database',label:'Buffer',val:'Low Latency'}]},pubg:{name:'PUBG',alpn:'h2,http/1.1',fingerprint:'chrome',port:443,mtu:1340,tcpwin:65536,keepalive:20,timeout:8,presets:[{icon:'ti-antenna-bars-5',label:'ALPN',val:'h2,http/1.1'},{icon:'ti-fingerprint',label:'FP',val:'chrome'},{icon:'ti-route',label:'Port',val:443},{icon:'ti-transfer',label:'MTU',val:1340},{icon:'ti-database',label:'Buffer',val:'Ultra Low'}]},apex:{name:'Apex Legends',alpn:'h2,http/1.1',fingerprint:'chrome',port:443,mtu:1380,tcpwin:65536,keepalive:25,timeout:9,presets:[{icon:'ti-antenna-bars-5',label:'ALPN',val:'h2,http/1.1'},{icon:'ti-fingerprint',label:'FP',val:'chrome'},{icon:'ti-route',label:'Port',val:443},{icon:'ti-transfer',label:'MTU',val:1380},{icon:'ti-database',label:'Buffer',val:'Balanced'}]},overwatch2:{name:'Overwatch 2',alpn:'h2,http/1.1',fingerprint:'chrome',port:443,mtu:1360,tcpwin:65536,keepalive:20,timeout:7,presets:[{icon:'ti-antenna-bars-5',label:'ALPN',val:'h2,http/1.1'},{icon:'ti-fingerprint',label:'FP',val:'chrome'},{icon:'ti-route',label:'Port',val:443},{icon:'ti-transfer',label:'MTU',val:1360},{icon:'ti-database',label:'Buffer',val:'Ultra Low'}]},cod:{name:'Call of Duty',alpn:'h2,http/1.1',fingerprint:'chrome',port:443,mtu:1380,tcpwin:65536,keepalive:22,timeout:8,presets:[{icon:'ti-antenna-bars-5',label:'ALPN',val:'h2,http/1.1'},{icon:'ti-fingerprint',label:'FP',val:'chrome'},{icon:'ti-route',label:'Port',val:443},{icon:'ti-transfer',label:'MTU',val:1380},{icon:'ti-database',label:'Buffer',val:'Low Latency'}]},custom:{name:'سفارشی',alpn:'h2,http/1.1',fingerprint:'chrome',port:443,mtu:1500,tcpwin:65536,keepalive:30,timeout:10,presets:[{icon:'ti-antenna-bars-5',label:'ALPN',val:'h2,http/1.1'},{icon:'ti-fingerprint',label:'FP',val:'chrome'},{icon:'ti-route',label:'Port',val:443},{icon:'ti-transfer',label:'MTU',val:1500},{icon:'ti-database',label:'Buffer',val:'Default'}]}};
+function onGameSelect(prefix){const sel=document.getElementById(prefix+'-game-select');const game=sel?.value;const presets=document.getElementById(prefix+'-gm-presets');const grid=document.getElementById(prefix+'-gm-preset-grid');if(!game){if(presets)presets.classList.remove('show');return}const p=GAME_PROFILES[game];if(!p)return;grid.innerHTML=p.presets.map(x=>`<div class="gm-preset-item"><i class="ti ${x.icon}"></i><b>${x.label}:</b> ${x.val}</div>`).join('');presets.classList.add('show');const fp=document.getElementById('nl-fp')||document.getElementById('el-fp');const alpnSel=document.getElementById('nl-alpn-preset');const alpnInp=document.getElementById('nl-alpn');if(fp)fp.value=p.fingerprint;if(alpnSel){alpnSel.value=p.alpn;onAlpnPresetChange();}const mtu=document.getElementById(prefix+'-gm-mtu');const tcpwin=document.getElementById(prefix+'-gm-tcpwin');const ka=document.getElementById(prefix+'-gm-keepalive');const to=document.getElementById(prefix+'-gm-timeout');if(mtu)mtu.value=p.mtu;if(tcpwin)tcpwin.value=p.tcpwin;if(ka)ka.value=p.keepalive;if(to)to.value=p.timeout;}
+function toggleGmAdv(prefix){const tog=document.querySelector('#'+prefix+'-gm-adv .gm-adv-toggle');const grid=document.getElementById(prefix+'-gm-adv-grid');tog.classList.toggle('open');grid.classList.toggle('show');}
 const sb=document.getElementById('sb'),ov=document.getElementById('overlay');
 function openSb(){sb.classList.add('open');ov.classList.add('show')}
 function closeSb(){sb.classList.remove('open');ov.classList.remove('show')}
@@ -859,9 +939,9 @@ function toggleSelectAllLinks(el){const list=filteredLinksList();if(el.checked)l
 function clearLinksSelection(){selectedLinks.clear();renderLinksGrid();}
 function updateBulkBar(){const bar=document.getElementById('links-bulkbar'),sa=document.getElementById('links-selall'),n=selectedLinks.size;document.getElementById('links-selcount').textContent=toFa(n);bar.style.display=n>0?'flex':'none';const list=filteredLinksList();sa.checked=list.length>0&&list.every(l=>selectedLinks.has(l.uuid));}
 async function bulkLinksAction(action){const uuids=Array.from(selectedLinks);if(!uuids.length)return;if(action==='delete'&&!confirm(`حذف ${toFa(uuids.length)} کانفیگ؟`))return;try{await Promise.all(uuids.map(uuid=>{if(action==='activate')return authF('/api/links/'+uuid,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({active:true})});if(action==='deactivate')return authF('/api/links/'+uuid,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({active:false})});if(action==='reset')return authF('/api/links/'+uuid,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({reset_usage:true})});if(action==='delete')return authF('/api/links/'+uuid,{method:'DELETE'});}));toast({activate:'فعال شد ✓',deactivate:'غیرفعال شد ✓',reset:'ریست شد ✓',delete:'حذف شد ✓'}[action],'ok');if(action==='delete')selectedLinks.clear();loadLinks();}catch(e){toast('خطا','err')}}
-async function createLink(){const label=document.getElementById('nl-label').value.trim()||'کانفیگ جدید';const val=document.getElementById('nl-val').value;const unit=document.getElementById('nl-unit').value;const exp=document.getElementById('nl-exp').value;const note=document.getElementById('nl-note').value.trim();const protocol=document.getElementById('nl-proto').value||'vless-ws';const fingerprint=document.getElementById('nl-fp').value||'chrome';const alpn=document.getElementById('nl-alpn').value.trim();const port=443;const ip_limit=Number(document.getElementById('nl-iplimit').value)||0;const speed_limit_value=Number(document.getElementById('nl-speed').value)||0;const speed_limit_unit=document.getElementById('nl-speed-unit').value;const gaming_mode=document.getElementById('nl-gaming').checked;try{const r=await authF('/api/links',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({label,limit_value:val||0,limit_unit:unit,expires_days:exp||0,note,protocol,fingerprint,alpn,port,ip_limit,speed_limit_value,speed_limit_unit,gaming_mode})});if(!r.ok)throw new Error('failed');['nl-label','nl-val','nl-exp','nl-note','nl-alpn'].forEach(id=>document.getElementById(id).value='');document.getElementById('nl-iplimit').value='0';document.getElementById('nl-speed').value='0';document.getElementById('nl-alpn-preset').value='';document.getElementById('nl-alpn').style.display='none';document.getElementById('nl-gaming').checked=false;toggleGamingMode('nl',false);toast('کانفیگ ساخته شد ✓','ok');loadLinks();}catch(e){toast('خطا در ساخت','err')}}
-function openEditLink(uuid){const l=allLinksList.find(x=>x.uuid===uuid);if(!l)return;document.getElementById('el-uuid').value=uuid;document.getElementById('el-label').value=l.label;document.getElementById('el-note').value=l.note||'';if(l.limit_bytes===0){document.getElementById('el-val').value='';document.getElementById('el-unit').value='GB';}else{document.getElementById('el-val').value=(l.limit_bytes/1024/1024).toFixed(0);document.getElementById('el-unit').value='MB';}document.getElementById('el-exp').value='';document.getElementById('el-fp').value=l.fingerprint||'chrome';document.getElementById('el-alpn').value=l.alpn||'';document.getElementById('el-port').value=l.port||443;document.getElementById('el-iplimit').value=l.ip_limit||0;if(!l.speed_limit_bytes){document.getElementById('el-speed').value='0';document.getElementById('el-speed-unit').value='MBIT';}else{document.getElementById('el-speed').value=(l.speed_limit_bytes*8/1024/1024).toFixed(2);document.getElementById('el-speed-unit').value='MBIT';}document.getElementById('el-gaming').checked=!!l.gaming_mode;toggleGamingMode('el',!!l.gaming_mode);openModal('modal-edit-link');}
-async function saveEditLink(){const uuid=document.getElementById('el-uuid').value;const body={label:document.getElementById('el-label').value.trim(),note:document.getElementById('el-note').value.trim(),limit_value:document.getElementById('el-val').value||0,limit_unit:document.getElementById('el-unit').value,fingerprint:document.getElementById('el-fp').value||'chrome',alpn:document.getElementById('el-alpn').value.trim(),port:Number(document.getElementById('el-port').value)||443,ip_limit:Number(document.getElementById('el-iplimit').value)||0,speed_limit_value:Number(document.getElementById('el-speed').value)||0,speed_limit_unit:document.getElementById('el-speed-unit').value,gaming_mode:document.getElementById('el-gaming').checked};const exp=document.getElementById('el-exp').value;if(exp&&Number(exp)>0)body.expires_days=Number(exp);try{const r=await authF('/api/links/'+uuid,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});if(!r.ok)throw new Error();closeModal('modal-edit-link');toast('ویرایش شد ✓','ok');loadLinks();}catch(e){toast('خطا','err')}}
+async function createLink(){const label=document.getElementById('nl-label').value.trim()||'کانفیگ جدید';const val=document.getElementById('nl-val').value;const unit=document.getElementById('nl-unit').value;const exp=document.getElementById('nl-exp').value;const note=document.getElementById('nl-note').value.trim();const protocol=document.getElementById('nl-proto').value||'vless-ws';const fingerprint=document.getElementById('nl-fp').value||'chrome';const alpn=document.getElementById('nl-alpn').value.trim();const port=443;const ip_limit=Number(document.getElementById('nl-iplimit').value)||0;const speed_limit_value=Number(document.getElementById('nl-speed').value)||0;const speed_limit_unit=document.getElementById('nl-speed-unit').value;const gaming_mode=document.getElementById('nl-gaming').checked;const gaming_profile=gaming_mode?(document.getElementById('nl-game-select')?.value||''):'';try{const r=await authF('/api/links',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({label,limit_value:val||0,limit_unit:unit,expires_days:exp||0,note,protocol,fingerprint,alpn,port,ip_limit,speed_limit_value,speed_limit_unit,gaming_mode,gaming_profile})});if(!r.ok)throw new Error('failed');['nl-label','nl-val','nl-exp','nl-note','nl-alpn'].forEach(id=>document.getElementById(id).value='');document.getElementById('nl-iplimit').value='0';document.getElementById('nl-speed').value='0';document.getElementById('nl-alpn-preset').value='';document.getElementById('nl-alpn').style.display='none';document.getElementById('nl-gaming').checked=false;const gs=document.getElementById('nl-game-select');if(gs)gs.value='';toggleGamingMode('nl',false);toast('کانفیگ ساخته شد ✓','ok');loadLinks();}catch(e){toast('خطا در ساخت','err')}}
+function openEditLink(uuid){const l=allLinksList.find(x=>x.uuid===uuid);if(!l)return;document.getElementById('el-uuid').value=uuid;document.getElementById('el-label').value=l.label;document.getElementById('el-note').value=l.note||'';if(l.limit_bytes===0){document.getElementById('el-val').value='';document.getElementById('el-unit').value='GB';}else{document.getElementById('el-val').value=(l.limit_bytes/1024/1024).toFixed(0);document.getElementById('el-unit').value='MB';}document.getElementById('el-exp').value='';document.getElementById('el-fp').value=l.fingerprint||'chrome';document.getElementById('el-alpn').value=l.alpn||'';document.getElementById('el-port').value=l.port||443;document.getElementById('el-iplimit').value=l.ip_limit||0;if(!l.speed_limit_bytes){document.getElementById('el-speed').value='0';document.getElementById('el-speed-unit').value='MBIT';}else{document.getElementById('el-speed').value=(l.speed_limit_bytes*8/1024/1024).toFixed(2);document.getElementById('el-speed-unit').value='MBIT';}document.getElementById('el-gaming').checked=!!l.gaming_mode;const gs=document.getElementById('el-game-select');if(gs)gs.value=l.gaming_profile||'';toggleGamingMode('el',!!l.gaming_mode);if(l.gaming_profile&&l.gaming_mode)onGameSelect('el');openModal('modal-edit-link');}
+async function saveEditLink(){const uuid=document.getElementById('el-uuid').value;const elGaming=document.getElementById('el-gaming').checked;const body={label:document.getElementById('el-label').value.trim(),note:document.getElementById('el-note').value.trim(),limit_value:document.getElementById('el-val').value||0,limit_unit:document.getElementById('el-unit').value,fingerprint:document.getElementById('el-fp').value||'chrome',alpn:document.getElementById('el-alpn').value.trim(),port:Number(document.getElementById('el-port').value)||443,ip_limit:Number(document.getElementById('el-iplimit').value)||0,speed_limit_value:Number(document.getElementById('el-speed').value)||0,speed_limit_unit:document.getElementById('el-speed-unit').value,gaming_mode:elGaming,gaming_profile:elGaming?(document.getElementById('el-game-select')?.value||''):''};const exp=document.getElementById('el-exp').value;if(exp&&Number(exp)>0)body.expires_days=Number(exp);try{const r=await authF('/api/links/'+uuid,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});if(!r.ok)throw new Error();closeModal('modal-edit-link');toast('ویرایش شد ✓','ok');loadLinks();}catch(e){toast('خطا','err')}}
 async function toggleActive(uuid,s){try{await authF('/api/links/'+uuid,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({active:s})});toast(s?'فعال شد ✓':'غیرفعال شد','ok');loadLinks();}catch(e){toast('خطا','err')}}
 async function resetUsage(uuid){try{await authF('/api/links/'+uuid,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({reset_usage:true})});toast('ریست شد ✓','ok');loadLinks();}catch(e){toast('خطا','err')}}
 async function deleteLink(uuid){if(!confirm('حذف این کانفیگ؟'))return;try{await authF('/api/links/'+uuid,{method:'DELETE'});toast('حذف شد ✓','ok');loadLinks();}catch(e){toast('خطا','err')}}
