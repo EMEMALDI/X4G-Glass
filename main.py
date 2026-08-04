@@ -395,7 +395,7 @@ def client_ip(request: Request) -> str:
 # ── Basic endpoints ───────────────────────────────────────────────────────────
 @app.get("/")
 async def root():
-    return {"service": "X4G", "version": "9.5", "status": "active", "channel": "https://t.me/X4GHUB"}
+    return {"service": "X4G", "version": "9.6", "status": "active", "channel": "https://t.me/X4GHUB"}
 
 @app.get("/health")
 async def health():
