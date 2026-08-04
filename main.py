@@ -595,8 +595,6 @@ async def make_link(
     port: int = DEFAULT_PORT,
     ip_limit: int = 0,
     speed_limit_bytes: int = 0,
-    gaming_mode: bool = False,
-    gaming_profile: str = "",
     category: str = DEFAULT_CATEGORY,
     bandwidth_saver: bool = False,
 ) -> tuple[str, dict]:
@@ -626,8 +624,6 @@ async def make_link(
             "port": port,
             "ip_limit": max(0, ip_limit),
             "speed_limit_bytes": max(0, speed_limit_bytes),
-            "gaming_mode": bool(gaming_mode),
-            "gaming_profile": (gaming_profile or "").strip()[:50],
             "category": category,
             "bandwidth_saver": bool(bandwidth_saver),
         }
@@ -688,8 +684,6 @@ async def create_link(request: Request, _=Depends(require_auth)):
         port=port,
         ip_limit=ip_limit,
         speed_limit_bytes=speed_limit_bytes,
-        gaming_mode=bool(body.get("gaming_mode")),
-        gaming_profile=(body.get("gaming_profile") or "").strip()[:50],
         category=(body.get("category") or DEFAULT_CATEGORY).strip(),
         bandwidth_saver=bool(body.get("bandwidth_saver")),
     )
@@ -773,17 +767,13 @@ async def update_link(uid: str, request: Request, _=Depends(require_auth)):
             link["speed_limit_bytes"] = 0 if sv <= 0 else parse_speed_to_bytes(sv, su)
             from speed_limit import reset_bucket
             reset_bucket(uid)
-        if "gaming_mode" in body:
-            link["gaming_mode"] = bool(body["gaming_mode"])
-        if "gaming_profile" in body:
-            link["gaming_profile"] = (body.get("gaming_profile") or "").strip()[:50]
         if "category" in body:
             cat = (body.get("category") or DEFAULT_CATEGORY).strip()
             if cat in CATEGORIES:
                 link["category"] = cat
         if "bandwidth_saver" in body:
             link["bandwidth_saver"] = bool(body["bandwidth_saver"])
-        if any(k in body for k in ("label", "note", "limit_value", "expires_days", "fingerprint", "alpn", "port", "ip_limit", "speed_limit_value", "gaming_mode", "gaming_profile", "category", "bandwidth_saver")):
+        if any(k in body for k in ("label", "note", "limit_value", "expires_days", "fingerprint", "alpn", "port", "ip_limit", "speed_limit_value", "category", "bandwidth_saver")):
             log_activity("link", f"کانفیگ «{link['label']}» ویرایش شد", "info")
 
     asyncio.create_task(save_state())
@@ -816,12 +806,6 @@ app.add_api_websocket_route("/ws/{uuid}", websocket_tunnel)
 # ══════════════════════════════════════════════════════════════════════════════
 from xhttp_siz10 import router as xhttp_router
 app.include_router(xhttp_router)
-
-# ══════════════════════════════════════════════════════════════════════════════
-# بهینه‌سازی گیمینگ و پهنای باند
-# ══════════════════════════════════════════════════════════════════════════════
-from gaming_optimizer import get_optimizer, remove_optimizer, get_all_optimizers, get_gaming_profiles
-from bandwidth_saver import get_bandwidth_report, get_global_bandwidth_report
 
 # ══════════════════════════════════════════════════════════════════════════════
 # ربات مدیریت تلگرام (اختیاری — فقط اگه TELEGRAM_BOT_TOKEN ست شده باشه فعال می‌شه)
@@ -944,7 +928,6 @@ async def subscription_data(token: str, request: Request):
                 "sub_url": f"https://{host}/sub/{uid}",
                 "connections": conn_count,
                 "bandwidth_saver": link.get("bandwidth_saver", False),
-                "gaming_mode": link.get("gaming_mode", False),
             })
 
     return {
@@ -953,42 +936,6 @@ async def subscription_data(token: str, request: Request):
         "total": len(result),
         "support_url": "https://t.me/X4GHUB",
     }
-
-# ── Gaming Profiles API ───────────────────────────────────────────────────────
-@app.get("/api/gaming/profiles")
-async def get_gaming_profiles_api(_=Depends(require_auth)):
-    return {"profiles": get_gaming_profiles()}
-
-@app.get("/api/gaming/stats")
-async def get_gaming_stats(_=Depends(require_auth)):
-    return {"optimizers": get_all_optimizers()}
-
-# ── Ping Monitor API ────────────────────────────────────────────────────────
-@app.get("/api/ping/best")
-async def ping_best(_=Depends(require_auth)):
-    """بهترین سرور از Cloudflare Edge"""
-    from ping_monitor import get_best_server
-    return await get_best_server()
-
-@app.get("/api/ping/all")
-async def ping_all(_=Depends(require_auth)):
-    """پینگ همه مناطق از Cloudflare Edge"""
-    from ping_monitor import get_all_pings
-    return await get_all_pings()
-
-@app.get("/api/ping/game/{game}")
-async def ping_game(game: str, _=Depends(require_auth)):
-    """پینگ گیمینگ از Cloudflare Edge"""
-    from ping_monitor import get_game_pings
-    return await get_game_pings(game)
-
-@app.get("/api/bandwidth/report")
-async def get_bandwidth_report_api(_=Depends(require_auth)):
-    return get_global_bandwidth_report()
-
-@app.get("/api/bandwidth/report/{uuid}")
-async def get_bandwidth_report_config(uuid: str, _=Depends(require_auth)):
-    return get_bandwidth_report(uuid)
 
 # ── HTML Pages (login + dashboard) ───────────────────────────────────────────
 from pages import LOGIN_HTML, DASHBOARD_HTML

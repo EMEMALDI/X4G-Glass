@@ -24,7 +24,6 @@ from main import (
 )
 from speed_limit import throttle
 from bandwidth_saver import throttle_bandwidth
-from gaming_optimizer import get_optimizer
 
 # ══════════════════════════════════════════════════════════════════════════════
 # VLESS Relay — بهینه‌شده برای حداکثر throughput
@@ -33,8 +32,6 @@ from gaming_optimizer import get_optimizer
 
 RELAY_BUF = 256 * 1024   # 256 KB buffer
 
-# بافر کوچک‌تر برای گیمینگ (کاهش لیتنسی)
-GAMING_RELAY_BUF = 16 * 1024   # 16 KB buffer for gaming
 
 def _ws_client_ip(ws: WebSocket) -> str:
     fwd = ws.headers.get("x-forwarded-for")
@@ -79,11 +76,8 @@ async def check_and_use(uid: str, n: int) -> bool:
     return True
 
 async def relay_ws_to_tcp(ws: WebSocket, writer: asyncio.StreamWriter, conn_id: str, uid: str):
-    # دریافت بهینه‌سازها
     async with LINKS_LOCK:
         link = LINKS.get(uid)
-    gaming_opt = get_optimizer(uid, link.get("gaming_mode", False), link.get("gaming_profile", ""))
-    use_gaming = gaming_opt.should_optimize()
 
     try:
         while True:
@@ -97,9 +91,6 @@ async def relay_ws_to_tcp(ws: WebSocket, writer: asyncio.StreamWriter, conn_id: 
                 await ws.close(code=1008, reason="quota/disabled/unknown")
                 break
             await throttle(uid, len(data))
-            # بهینه‌سازی گیمینگ
-            if use_gaming:
-                data = await gaming_opt.optimize_packet(data)
             # کاهش مصرف پهنای باند
             data = await throttle_bandwidth(uid, data, link)
             stats["total_requests"] += 1
@@ -116,11 +107,8 @@ async def relay_ws_to_tcp(ws: WebSocket, writer: asyncio.StreamWriter, conn_id: 
             pass
 
 async def relay_tcp_to_ws(ws: WebSocket, reader: asyncio.StreamReader, conn_id: str, uid: str):
-    # دریافت بهینه‌سازها
     async with LINKS_LOCK:
         link = LINKS.get(uid)
-    gaming_opt = get_optimizer(uid, link.get("gaming_mode", False), link.get("gaming_profile", ""))
-    use_gaming = gaming_opt.should_optimize()
 
     first = True
     try:
@@ -132,9 +120,6 @@ async def relay_tcp_to_ws(ws: WebSocket, reader: asyncio.StreamReader, conn_id: 
                 await ws.close(code=1008, reason="quota/disabled/unknown")
                 break
             await throttle(uid, len(data))
-            # بهینه‌سازی گیمینگ
-            if use_gaming:
-                data = await gaming_opt.optimize_packet(data)
             # کاهش مصرف پهنای باند
             data = await throttle_bandwidth(uid, data, link)
             connections[conn_id]["bytes"] += len(data)
