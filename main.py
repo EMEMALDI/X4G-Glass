@@ -822,10 +822,6 @@ app.include_router(xhttp_router)
 # ══════════════════════════════════════════════════════════════════════════════
 from gaming_optimizer import get_optimizer, remove_optimizer, get_all_optimizers, get_gaming_profiles
 from bandwidth_saver import get_bandwidth_report, get_global_bandwidth_report
-from multi_location import (
-    WORKER_URL, check_tor, scan_ips, lookup_ip, detect_ip,
-    get_exit_nodes, get_countries, get_worker_stats, health_check,
-)
 
 # ══════════════════════════════════════════════════════════════════════════════
 # ربات مدیریت تلگرام (اختیاری — فقط اگه TELEGRAM_BOT_TOKEN ست شده باشه فعال می‌شه)
@@ -994,52 +990,6 @@ async def get_bandwidth_report_api(_=Depends(require_auth)):
 async def get_bandwidth_report_config(uuid: str, _=Depends(require_auth)):
     return get_bandwidth_report(uuid)
 
-# ── Multi-Location API ───────────────────────────────────────────────────────
-@app.get("/api/locations")
-async def get_locations(_=Depends(require_auth)):
-    """آدرس Worker"""
-    return {"worker_url": WORKER_URL}
-
-@app.get("/api/locations/active")
-async def get_active_locations(_=Depends(require_auth)):
-    """سلامت Worker"""
-    return await health_check()
-
-@app.get("/api/locations/best")
-async def get_best_location(_=Depends(require_auth)):
-    """آمار Worker"""
-    return await get_worker_stats()
-
-@app.post("/api/locations/health-check")
-async def health_check_locations(_=Depends(require_auth)):
-    """بررسی Tor"""
-    return await check_tor()
-
-@app.post("/api/locations/scan")
-async def scan_ips_endpoint(request: Request, _=Depends(require_auth)):
-    """اسکن آی‌پی‌ها"""
-    body = await request.json()
-    return await scan_ips(body.get("ips", []), body.get("ports"))
-
-@app.get("/api/locations/lookup/{ip}")
-async def lookup_ip_endpoint(ip: str, _=Depends(require_auth)):
-    """اطلاعات آی‌پی"""
-    return await lookup_ip(ip)
-
-@app.get("/api/locations/detect/{ip}")
-async def detect_ip_endpoint(ip: str, _=Depends(require_auth)):
-    """تشخیص VPN/Proxy/Tor"""
-    return await detect_ip(ip)
-
-@app.get("/api/locations/exit-nodes")
-async def exit_nodes_endpoint(_=Depends(require_auth)):
-    """لیست Exit Node های Tor"""
-    return await get_exit_nodes()
-
-@app.get("/api/locations/countries")
-async def countries_endpoint(_=Depends(require_auth)):
-    """لیست کشورها"""
-    return await get_countries()
 # ── HTML Pages (login + dashboard) ───────────────────────────────────────────
 from pages import LOGIN_HTML, DASHBOARD_HTML
 

@@ -699,8 +699,7 @@ a{color:inherit;text-decoration:none}
     <div class="nav-it" data-pg="settings"><i class="ti ti-settings"></i> تنظیمات</div>
     <div class="nav-it" data-pg="support"><i class="ti ti-headset"></i> پشتیبانی</div>
     <div class="nav-sec">ابزارها</div>
-    <div class="nav-it" data-pg="subscribe"><i class="ti ti-rss"></i> ساب‌پیج</div>
-    <div class="nav-it" data-pg="multilocation"><i class="ti ti-world"></i> مولتی لوکیشن</div>
+    <div class="nav-it" data-pg="subscribe"><i class="ti ti-rss"></i> ساب‌ساز</div>
   </div>
   <div class="sb-foot">
     <button class="theme-btn" onclick="toggleTheme()"><i class="ti ti-moon" id="theme-icon"></i> <span id="theme-label">تم روشن</span></button>
@@ -946,29 +945,6 @@ a{color:inherit;text-decoration:none}
     </div>
   </div>
 </section>
-<section class="pg" id="pg-multilocation">
-  <div class="topbar"><div><div class="tb-title"><i class="ti ti-world"></i> مولتی لوکیشن</div></div></div>
-  <div class="srv-panel">
-    <div class="srv-hero"><div class="srv-hero-icon"><i class="ti ti-world"></i></div><div class="srv-hero-text"><div class="srv-hero-domain">Cloudflare Workers</div><div class="srv-hero-sub"><span class="dot dg pulse"></span> اسکنر Tor + IP Scanner</div></div></div>
-    <div class="srv-tiles">
-      <div class="srv-tile" id="ml-status-tile"><div class="srv-tile-icon"><i class="ti ti-heart-pulse"></i></div><div class="srv-tile-text"><div class="srv-tile-label">وضعیت Worker</div><div class="srv-tile-val" id="ml-status">در حال بررسی...</div></div></div>
-      <div class="srv-tile" id="ml-stats-tile"><div class="srv-tile-icon"><i class="ti ti-chart-bar"></i></div><div class="srv-tile-text"><div class="srv-tile-label">آمار</div><div class="srv-tile-val" id="ml-stats">—</div></div></div>
-    </div>
-    <div style="padding:16px">
-      <div style="background:var(--card);border:1px solid var(--bdr);border-radius:12px;padding:20px;margin-bottom:16px">
-        <div style="font-weight:700;font-size:14px;margin-bottom:12px"><i class="ti ti-scan"></i> اسکن آی‌پی</div>
-        <div style="display:flex;gap:8px">
-          <input class="cp-input-full" id="ml-scan-ip" placeholder="آی‌پی مورد نظر (مثلاً 1.1.1.1)" style="flex:1">
-          <button class="btn btn-p" onclick="mlScanIp()"><i class="ti ti-search"></i> اسکن</button>
-        </div>
-        <div id="ml-scan-result" style="margin-top:12px;font-size:12px"></div>
-      </div>
-      <div style="background:var(--card);border:1px solid var(--bdr);border-radius:12px;padding:20px">
-        <div style="font-weight:700;font-size:14px;margin-bottom:12px"><i class="ti ti-list"></i> آخرین Exit Node ها</div>
-        <div id="ml-exit-nodes" style="font-size:12px;max-height:300px;overflow-y:auto"></div>
-      </div>
-    </div>
-  </div>
 </section>
 </main>
 <script>
@@ -1220,9 +1196,7 @@ function selectAllSubLinks(sel){{selectedSubLinks.clear();if(sel)allLinksList.fo
 function buildSubscription(){{if(!selectedSubLinks.size)return toast('اول کانفیگ انتخاب کن','err');const token=Array.from(selectedSubLinks).join(',');const url=window.location.origin+'/subscribe/'+token;document.getElementById('sub-link-output').value=url;document.getElementById('sub-result').style.display='block';toast(selectedSubLinks.size+' کانفیگ ساب شد ✓','ok')}}
 function copySubOutput(){{const el=document.getElementById('sub-link-output');if(el.value)navigator.clipboard.writeText(el.value).then(()=>toast('کپی شد ✓','ok'))}}
 document.querySelector('[data-pg="subscribe"]').addEventListener('click',loadSubLinksList);
-async function mlScanIp(){{const ip=document.getElementById('ml-scan-ip').value.trim();if(!ip)return;const el=document.getElementById('ml-scan-result');el.innerHTML='<span style="color:var(--accent)">در حال اسکن...</span>';try{{const r=await fetch('/api/locations/lookup/'+ip);const d=await r.json();if(d.location){{el.innerHTML='<div style="color:var(--success-t)">✅ <b>'+esc(ip)+'</b><br>📍 '+esc(d.location.country)+' · '+esc(d.location.city)+'<br>🏢 '+esc(d.isp?.name||'—')+'</div>'}}else{{el.innerHTML='<span style="color:var(--warning-t)">⚠️ اطلاعاتی یافت نشد</span>'}}}}catch(e){{el.innerHTML='<span style="color:var(--danger-t)">❌ خطا</span>'}}}}
-async function loadMultiLocation(){{try{{const r=await fetch('/api/locations/active');const d=await r.json();if(d.success){{document.getElementById('ml-status').innerHTML='<span style="color:var(--success-t)">✅ آنلاین</span>';document.getElementById('ml-stats').textContent='Total Requests: '+toFa(d.stats.totalRequests)}}else{{document.getElementById('ml-status').innerHTML='<span style="color:var(--danger-t)">❌ قطع</span>'}}const nr=await fetch('/api/locations/exit-nodes');const nd=await nr.json();const el=document.getElementById('ml-exit-nodes');if(nd.nodes){{el.innerHTML='<div style="margin-bottom:8px;color:var(--t2)">تعداد: <b>'+toFa(nd.total)+'</b></div>'+nd.nodes.slice(0,20).map(n=>'<div style="padding:4px 0;border-bottom:1px solid var(--bdr);font-family:monospace">'+esc(n.exit_address)+' <span style="color:var(--t3)">('+esc(n.fingerprint.substring(0,8))+'...)</span></div>').join('')}}}}catch(e){{document.getElementById('ml-status').innerHTML='<span style="color:var(--danger-t)">❌ خطا</span>'}}}}
-document.addEventListener('DOMContentLoaded',()=>{{document.querySelector('[data-pg="multilocation"]').addEventListener('click',loadMultiLocation)}});
+document.addEventListener('DOMContentLoaded',()=>{{}});
 init();
 </script>
 </body></html>"""
