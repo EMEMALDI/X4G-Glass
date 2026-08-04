@@ -5,7 +5,7 @@
 import httpx
 import time
 
-WORKER_URL = "https://restless-heart-cb0d.emem-32281.workers.dev"
+WORKER_URL = "https://shiny-cell-e342.emem-32281.workers.dev"
 
 # ── اتصال به Worker ──────────────────────────────────────────────────────────
 _client: httpx.AsyncClient | None = None
