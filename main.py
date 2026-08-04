@@ -970,21 +970,21 @@ async def get_gaming_stats(_=Depends(require_auth)):
 # ── Ping Monitor API ────────────────────────────────────────────────────────
 @app.get("/api/ping/best")
 async def ping_best(_=Depends(require_auth)):
-    """بهترین سرور بر اساس پینگ"""
-    from ping_monitor import ping_best_server
-    return await ping_best_server()
+    """بهترین سرور از Cloudflare Edge"""
+    from ping_monitor import get_best_server
+    return await get_best_server()
 
 @app.get("/api/ping/all")
 async def ping_all(_=Depends(require_auth)):
-    """پینگ تمام مناطق"""
-    from ping_monitor import ping_all_regions
-    return await ping_all_regions()
+    """پینگ همه مناطق از Cloudflare Edge"""
+    from ping_monitor import get_all_pings
+    return await get_all_pings()
 
 @app.get("/api/ping/game/{game}")
 async def ping_game(game: str, _=Depends(require_auth)):
-    """پینگ سرورهای بازی"""
-    from ping_monitor import ping_game_servers
-    return await ping_game_servers(game)
+    """پینگ گیمینگ از Cloudflare Edge"""
+    from ping_monitor import get_game_pings
+    return await get_game_pings(game)
 
 @app.get("/api/bandwidth/report")
 async def get_bandwidth_report_api(_=Depends(require_auth)):
