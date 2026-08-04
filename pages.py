@@ -667,6 +667,8 @@ a{color:inherit;text-decoration:none}
         </div>
         <div class="gm-server-note">💡 نکته: پنل روی سرور آلمان (فرانکفورت) قرار دارد. برای بهترین نتیجه، بازی‌هایی با سرور اروپا انتخاب کنید.</div>
       </div>
+      <div style="margin-top:12px"><label style="display:block;font-size:10px;color:var(--t3);font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px">دسته‌بندی</label><select class="cp-input-full fs" id="el-category"><option value="browsing">🌐 مرورگر</option><option value="gaming">🎮 گیمینگ</option><option value="streaming">📺 استریمینگ</option><option value="social">💬 شبکه اجتماعی</option><option value="download">📥 دانلود</option><option value="vip">⭐ VIP</option><option value="economy">💰 اقتصادی</option></select></div>
+      <div style="margin-top:12px"><label style="display:block;font-size:10px;color:var(--t3);font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px">کاهش مصرف</label><label class="gm-toggle"><input type="checkbox" id="el-bwsaver"><span class="gm-slider"></span></label><div style="font-size:11px;color:var(--t3);margin-top:4px">فشرده‌سازی Brotli</div></div>
     </div>
     <div style="margin-top:16px;display:flex;gap:8px;justify-content:flex-end">
       <button class="btn btn-o" onclick="closeModal('modal-edit-link')">انصراف</button>
@@ -696,6 +698,9 @@ a{color:inherit;text-decoration:none}
     <div class="nav-it" data-pg="errors"><i class="ti ti-alert-triangle"></i> خطاها</div>
     <div class="nav-it" data-pg="settings"><i class="ti ti-settings"></i> تنظیمات</div>
     <div class="nav-it" data-pg="support"><i class="ti ti-headset"></i> پشتیبانی</div>
+    <div class="nav-sec">ابزارها</div>
+    <div class="nav-it" data-pg="subscribe"><i class="ti ti-rss"></i> ساب‌پیج</div>
+    <div class="nav-it" data-pg="multilocation"><i class="ti ti-world"></i> مولتی لوکیشن</div>
   </div>
   <div class="sb-foot">
     <button class="theme-btn" onclick="toggleTheme()"><i class="ti ti-moon" id="theme-icon"></i> <span id="theme-label">تم روشن</span></button>
@@ -821,6 +826,8 @@ a{color:inherit;text-decoration:none}
           <div class="gm-server-note">💡 نکته: پنل روی سرور آلمان (فرانکفورت) قرار دارد. برای بهترین نتیجه، بازی‌هایی با سرور اروپا انتخاب کنید.</div>
         </div>
       </div>
+      <div class="cp-block mb16"><div class="cp-block-label"><i class="ti ti-category"></i> دسته‌بندی کانفیگ</div><select class="cp-input-full fs" id="nl-category"><option value="browsing">🌐 مرورگر</option><option value="gaming">🎮 گیمینگ</option><option value="streaming">📺 استریمینگ</option><option value="social">💬 شبکه اجتماعی</option><option value="download">📥 دانلود</option><option value="vip">⭐ VIP</option><option value="economy">💰 اقتصادی</option></select></div>
+      <div class="cp-block mb16"><div class="cp-block-label"><i class="ti ti-device-floppy"></i> کاهش مصرف پهنای باند</div><label class="gm-toggle"><input type="checkbox" id="nl-bwsaver"><span class="gm-slider"></span></label><div style="font-size:11px;color:var(--t3);margin-top:6px">فشرده‌سازی Brotli — کاهش ۱۵-۴۰٪ مصرف ترافیک</div></div>
       <div class="cp-footer"><div class="cp-footer-note"><i class="ti ti-info-circle"></i> UUID رندوم · فقط ثبت‌شده‌ها اجازه اتصال</div><button class="cp-submit-btn" onclick="createLink()"><i class="ti ti-link-plus"></i> ساخت کانفیگ</button></div>
     </div>
   </div>
@@ -912,6 +919,53 @@ a{color:inherit;text-decoration:none}
     </div>
   </div>
 </section>
+<section class="pg" id="pg-subscribe">
+  <div class="topbar"><div><div class="tb-title"><i class="ti ti-rss"></i> ساب‌پیج اشتراک</div></div></div>
+  <div class="srv-panel">
+    <div class="srv-hero"><div class="srv-hero-icon"><i class="ti ti-rss"></i></div><div class="srv-hero-text"><div class="srv-hero-domain">ساب‌پیج X4G</div><div class="srv-hero-sub"><span class="dot dg pulse"></span> لینک اشتراک کانفیگ‌ها</div></div></div>
+    <div id="sub-page-content" style="padding:16px">
+      <div style="background:var(--card);border:1px solid var(--bdr);border-radius:12px;padding:20px;margin-bottom:16px">
+        <div style="font-weight:700;font-size:14px;margin-bottom:8px"><i class="ti ti-link"></i> لینک ساب‌پیج</div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <input class="cp-input-full" id="sub-link" readonly style="flex:1;font-size:12px;font-family:monospace">
+          <button class="btn btn-p" onclick="copySubLink()"><i class="ti ti-copy"></i> کپی</button>
+        </div>
+      </div>
+      <div style="background:var(--card);border:1px solid var(--bdr);border-radius:12px;padding:20px">
+        <div style="font-weight:700;font-size:14px;margin-bottom:8px"><i class="ti ti-info-circle"></i> راهنما</div>
+        <div style="font-size:12px;color:var(--t2);line-height:1.8">
+          <p>این لینک رو در اپ‌های VPN مثل <b>v2rayNG</b>, <b>NekoBox</b>, <b>Hiddify</b> وارد کنید.</p>
+          <p>لیست تمام کانفیگ‌های فعال شما رو دریافت می‌کنه.</p>
+          <p>هر بار رفرش، آخرین کانفیگ‌ها رو میاره.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="pg" id="pg-multilocation">
+  <div class="topbar"><div><div class="tb-title"><i class="ti ti-world"></i> مولتی لوکیشن</div></div></div>
+  <div class="srv-panel">
+    <div class="srv-hero"><div class="srv-hero-icon"><i class="ti ti-world"></i></div><div class="srv-hero-text"><div class="srv-hero-domain">Cloudflare Workers</div><div class="srv-hero-sub"><span class="dot dg pulse"></span> اسکنر Tor + IP Scanner</div></div></div>
+    <div class="srv-tiles">
+      <div class="srv-tile" id="ml-status-tile"><div class="srv-tile-icon"><i class="ti ti-heart-pulse"></i></div><div class="srv-tile-text"><div class="srv-tile-label">وضعیت Worker</div><div class="srv-tile-val" id="ml-status">در حال بررسی...</div></div></div>
+      <div class="srv-tile" id="ml-stats-tile"><div class="srv-tile-icon"><i class="ti ti-chart-bar"></i></div><div class="srv-tile-text"><div class="srv-tile-label">آمار</div><div class="srv-tile-val" id="ml-stats">—</div></div></div>
+    </div>
+    <div style="padding:16px">
+      <div style="background:var(--card);border:1px solid var(--bdr);border-radius:12px;padding:20px;margin-bottom:16px">
+        <div style="font-weight:700;font-size:14px;margin-bottom:12px"><i class="ti ti-scan"></i> اسکن آی‌پی</div>
+        <div style="display:flex;gap:8px">
+          <input class="cp-input-full" id="ml-scan-ip" placeholder="آی‌پی مورد نظر (مثلاً 1.1.1.1)" style="flex:1">
+          <button class="btn btn-p" onclick="mlScanIp()"><i class="ti ti-search"></i> اسکن</button>
+        </div>
+        <div id="ml-scan-result" style="margin-top:12px;font-size:12px"></div>
+      </div>
+      <div style="background:var(--card);border:1px solid var(--bdr);border-radius:12px;padding:20px">
+        <div style="font-weight:700;font-size:14px;margin-bottom:12px"><i class="ti ti-list"></i> آخرین Exit Node ها</div>
+        <div id="ml-exit-nodes" style="font-size:12px;max-height:300px;overflow-y:auto"></div>
+      </div>
+    </div>
+  </div>
+</section>
 </main>
 <script>
 let isDark=localStorage.getItem('x4g-theme')!=='light';
@@ -962,9 +1016,10 @@ function toggleSelectAllLinks(el){const list=filteredLinksList();if(el.checked)l
 function clearLinksSelection(){selectedLinks.clear();renderLinksGrid();}
 function updateBulkBar(){const bar=document.getElementById('links-bulkbar'),sa=document.getElementById('links-selall'),n=selectedLinks.size;document.getElementById('links-selcount').textContent=toFa(n);bar.style.display=n>0?'flex':'none';const list=filteredLinksList();sa.checked=list.length>0&&list.every(l=>selectedLinks.has(l.uuid));}
 async function bulkLinksAction(action){const uuids=Array.from(selectedLinks);if(!uuids.length)return;if(action==='delete'&&!confirm(`حذف ${toFa(uuids.length)} کانفیگ؟`))return;try{await Promise.all(uuids.map(uuid=>{if(action==='activate')return authF('/api/links/'+uuid,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({active:true})});if(action==='deactivate')return authF('/api/links/'+uuid,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({active:false})});if(action==='reset')return authF('/api/links/'+uuid,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({reset_usage:true})});if(action==='delete')return authF('/api/links/'+uuid,{method:'DELETE'});}));toast({activate:'فعال شد ✓',deactivate:'غیرفعال شد ✓',reset:'ریست شد ✓',delete:'حذف شد ✓'}[action],'ok');if(action==='delete')selectedLinks.clear();loadLinks();}catch(e){toast('خطا','err')}}
-async function createLink(){const label=document.getElementById('nl-label').value.trim()||'کانفیگ جدید';const val=document.getElementById('nl-val').value;const unit=document.getElementById('nl-unit').value;const exp=document.getElementById('nl-exp').value;const note=document.getElementById('nl-note').value.trim();const protocol=document.getElementById('nl-proto').value||'vless-ws';const fingerprint=document.getElementById('nl-fp').value||'chrome';const alpn=document.getElementById('nl-alpn').value.trim();const port=443;const ip_limit=Number(document.getElementById('nl-iplimit').value)||0;const speed_limit_value=Number(document.getElementById('nl-speed').value)||0;const speed_limit_unit=document.getElementById('nl-speed-unit').value;const gaming_mode=document.getElementById('nl-gaming').checked;const gaming_profile=gaming_mode?(document.getElementById('nl-game-select')?.value||''):'';try{const r=await authF('/api/links',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({label,limit_value:val||0,limit_unit:unit,expires_days:exp||0,note,protocol,fingerprint,alpn,port,ip_limit,speed_limit_value,speed_limit_unit,gaming_mode,gaming_profile})});if(!r.ok)throw new Error('failed');['nl-label','nl-val','nl-exp','nl-note','nl-alpn'].forEach(id=>document.getElementById(id).value='');document.getElementById('nl-iplimit').value='0';document.getElementById('nl-speed').value='0';document.getElementById('nl-alpn-preset').value='';document.getElementById('nl-alpn').style.display='none';document.getElementById('nl-gaming').checked=false;const gs=document.getElementById('nl-game-select');if(gs)gs.value='';toggleGamingMode('nl',false);toast('کانفیگ ساخته شد ✓','ok');loadLinks();}catch(e){toast('خطا در ساخت','err')}}
+async function createLink(){const label=document.getElementById('nl-label').value.trim()||'کانفیگ جدید';const val=document.getElementById('nl-val').value;const unit=document.getElementById('nl-unit').value;const exp=document.getElementById('nl-exp').value;const note=document.getElementById('nl-note').value.trim();const protocol=document.getElementById('nl-proto').value||'vless-ws';const fingerprint=document.getElementById('nl-fp').value||'chrome';const alpn=document.getElementById('nl-alpn').value.trim();const port=443;const ip_limit=Number(document.getElementById('nl-iplimit').value)||0;const speed_limit_value=Number(document.getElementById('nl-speed').value)||0;const speed_limit_unit=document.getElementById('nl-speed-unit').value;const gaming_mode=document.getElementById('nl-gaming').checked;const gaming_profile=gaming_mode?(document.getElementById('nl-game-select')?.value||''):'';const category=document.getElementById('nl-category').value||'browsing';const bandwidth_saver=document.getElementById('nl-bwsaver').checked;try{const r=await authF('/api/links',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({label,limit_value:val||0,limit_unit:unit,expires_days:exp||0,note,protocol,fingerprint,alpn,port,ip_limit,speed_limit_value,speed_limit_unit,gaming_mode,gaming_profile,category,bandwidth_saver})});if(!r.ok)throw new Error('failed');['nl-label','nl-val','nl-exp','nl-note','nl-alpn'].forEach(id=>document.getElementById(id).value='');document.getElementById('nl-iplimit').value='0';document.getElementById('nl-speed').value='0';document.getElementById('nl-alpn-preset').value='';document.getElementById('nl-alpn').style.display='none';document.getElementById('nl-gaming').checked=false;document.getElementById('nl-bwsaver').checked=false;document.getElementById('nl-category').value='browsing';const gs=document.getElementById('nl-game-select');if(gs)gs.value='';toggleGamingMode('nl',false);toast('کانفیگ ساخته شد ✓','ok');loadLinks();}catch(e){toast('خطا در ساخت','err')}}
 function openEditLink(uuid){const l=allLinksList.find(x=>x.uuid===uuid);if(!l)return;document.getElementById('el-uuid').value=uuid;document.getElementById('el-label').value=l.label;document.getElementById('el-note').value=l.note||'';if(l.limit_bytes===0){document.getElementById('el-val').value='';document.getElementById('el-unit').value='GB';}else{document.getElementById('el-val').value=(l.limit_bytes/1024/1024).toFixed(0);document.getElementById('el-unit').value='MB';}document.getElementById('el-exp').value='';document.getElementById('el-fp').value=l.fingerprint||'chrome';document.getElementById('el-alpn').value=l.alpn||'';document.getElementById('el-port').value=l.port||443;document.getElementById('el-iplimit').value=l.ip_limit||0;if(!l.speed_limit_bytes){document.getElementById('el-speed').value='0';document.getElementById('el-speed-unit').value='MBIT';}else{document.getElementById('el-speed').value=(l.speed_limit_bytes*8/1024/1024).toFixed(2);document.getElementById('el-speed-unit').value='MBIT';}document.getElementById('el-gaming').checked=!!l.gaming_mode;const gs=document.getElementById('el-game-select');if(gs)gs.value=l.gaming_profile||'';toggleGamingMode('el',!!l.gaming_mode);if(l.gaming_profile&&l.gaming_mode)onGameSelect('el');openModal('modal-edit-link');}
-async function saveEditLink(){const uuid=document.getElementById('el-uuid').value;const elGaming=document.getElementById('el-gaming').checked;const body={label:document.getElementById('el-label').value.trim(),note:document.getElementById('el-note').value.trim(),limit_value:document.getElementById('el-val').value||0,limit_unit:document.getElementById('el-unit').value,fingerprint:document.getElementById('el-fp').value||'chrome',alpn:document.getElementById('el-alpn').value.trim(),port:Number(document.getElementById('el-port').value)||443,ip_limit:Number(document.getElementById('el-iplimit').value)||0,speed_limit_value:Number(document.getElementById('el-speed').value)||0,speed_limit_unit:document.getElementById('el-speed-unit').value,gaming_mode:elGaming,gaming_profile:elGaming?(document.getElementById('el-game-select')?.value||''):''};const exp=document.getElementById('el-exp').value;if(exp&&Number(exp)>0)body.expires_days=Number(exp);try{const r=await authF('/api/links/'+uuid,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});if(!r.ok)throw new Error();closeModal('modal-edit-link');toast('ویرایش شد ✓','ok');loadLinks();}catch(e){toast('خطا','err')}}
+function openEditLink(uuid){const l=allLinksList.find(x=>x.uuid===uuid);if(!l)return;document.getElementById('el-uuid').value=uuid;document.getElementById('el-label').value=l.label;document.getElementById('el-note').value=l.note||'';if(l.limit_bytes===0){document.getElementById('el-val').value='';document.getElementById('el-unit').value='GB';}else{document.getElementById('el-val').value=(l.limit_bytes/1024/1024).toFixed(0);document.getElementById('el-unit').value='MB';}document.getElementById('el-exp').value='';document.getElementById('el-fp').value=l.fingerprint||'chrome';document.getElementById('el-alpn').value=l.alpn||'';document.getElementById('el-port').value=l.port||443;document.getElementById('el-iplimit').value=l.ip_limit||0;if(!l.speed_limit_bytes){document.getElementById('el-speed').value='0';document.getElementById('el-speed-unit').value='MBIT';}else{document.getElementById('el-speed').value=(l.speed_limit_bytes*8/1024/1024).toFixed(2);document.getElementById('el-speed-unit').value='MBIT';}document.getElementById('el-gaming').checked=!!l.gaming_mode;const gs=document.getElementById('el-game-select');if(gs)gs.value=l.gaming_profile||'';toggleGamingMode('el',!!l.gaming_mode);if(l.gaming_profile&&l.gaming_mode)onGameSelect('el');document.getElementById('el-category').value=l.category||'browsing';document.getElementById('el-bwsaver').checked=!!l.bandwidth_saver;openModal('modal-edit-link');}
+async function saveEditLink(){const uuid=document.getElementById('el-uuid').value;const elGaming=document.getElementById('el-gaming').checked;const body={label:document.getElementById('el-label').value.trim(),note:document.getElementById('el-note').value.trim(),limit_value:document.getElementById('el-val').value||0,limit_unit:document.getElementById('el-unit').value,fingerprint:document.getElementById('el-fp').value||'chrome',alpn:document.getElementById('el-alpn').value.trim(),port:Number(document.getElementById('el-port').value)||443,ip_limit:Number(document.getElementById('el-iplimit').value)||0,speed_limit_value:Number(document.getElementById('el-speed').value)||0,speed_limit_unit:document.getElementById('el-speed-unit').value,gaming_mode:elGaming,gaming_profile:elGaming?(document.getElementById('el-game-select')?.value||''):'',category:document.getElementById('el-category').value||'browsing',bandwidth_saver:document.getElementById('el-bwsaver').checked};const exp=document.getElementById('el-exp').value;if(exp&&Number(exp)>0)body.expires_days=Number(exp);try{const r=await authF('/api/links/'+uuid,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});if(!r.ok)throw new Error();closeModal('modal-edit-link');toast('ویرایش شد ✓','ok');loadLinks();}catch(e){toast('خطا','err')}}
 async function toggleActive(uuid,s){try{await authF('/api/links/'+uuid,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({active:s})});toast(s?'فعال شد ✓':'غیرفعال شد','ok');loadLinks();}catch(e){toast('خطا','err')}}
 async function resetUsage(uuid){try{await authF('/api/links/'+uuid,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({reset_usage:true})});toast('ریست شد ✓','ok');loadLinks();}catch(e){toast('خطا','err')}}
 async function deleteLink(uuid){if(!confirm('حذف این کانفیگ؟'))return;try{await authF('/api/links/'+uuid,{method:'DELETE'});toast('حذف شد ✓','ok');loadLinks();}catch(e){toast('خطا','err')}}
@@ -1153,6 +1208,11 @@ function renderContent(d){{const ac=d.links.filter(l=>l.active).length;const su=
 function copyAll(){{const l=window._x4gLinks||[];if(!l.length)return;navigator.clipboard.writeText(l.map(x=>x.vless).join('\\n')).then(()=>toast('همه‌ی '+toFa(l.length)+' کانفیگ کپی شد ✓','ok'))}}
 async function autoRefresh(){{try{{const d=await loadData(savedPw);if(!d.locked)renderContent(d)}}catch(e){{}}}}
 async function init(){{try{{const d=await loadData();if(d.locked){{renderLock(d.name);return}}renderContent(d)}}catch(e){{document.getElementById('root').innerHTML='<div class="empty-state" style="color:var(--danger-t)"><i class="ti ti-alert-circle"></i>خطا</div>'}}}}
+function copySubLink(){{const el=document.getElementById('sub-link');if(el.value)navigator.clipboard.writeText(el.value).then(()=>toast('کپی شد ✓','ok'))}}
+function loadSubscribePage(){{const btn=document.querySelector('[data-pg="subscribe"]');btn.addEventListener('click',()=>{{const token=localStorage.getItem('x4g-token')||'';document.getElementById('sub-link').value=window.location.origin+'/subscribe/'+token}})}}
+async function mlScanIp(){{const ip=document.getElementById('ml-scan-ip').value.trim();if(!ip)return;const el=document.getElementById('ml-scan-result');el.innerHTML='<span style="color:var(--accent)">در حال اسکن...</span>';try{{const r=await fetch('/api/locations/lookup/'+ip);const d=await r.json();if(d.location){{el.innerHTML='<div style="color:var(--success-t)">✅ <b>'+esc(ip)+'</b><br>📍 '+esc(d.location.country)+' · '+esc(d.location.city)+'<br>🏢 '+esc(d.isp?.name||'—')+'</div>'}}else{{el.innerHTML='<span style="color:var(--warning-t)">⚠️ اطلاعاتی یافت نشد</span>'}}}}catch(e){{el.innerHTML='<span style="color:var(--danger-t)">❌ خطا</span>'}}}}
+async function loadMultiLocation(){{try{{const r=await fetch('/api/locations');const d=await r.json();document.getElementById('ml-status').innerHTML='<span style="color:var(--success-t)">✅ آنلاین</span>';document.getElementById('ml-stats').textContent=d.worker_url?'Connected':'—';const nr=await fetch('/api/locations/exit-nodes');const nd=await nr.json();const el=document.getElementById('ml-exit-nodes');if(nd.nodes){{el.innerHTML='<div style="margin-bottom:8px;color:var(--t2)">تعداد: <b>'+toFa(nd.total)+'</b></div>'+nd.nodes.slice(0,20).map(n=>'<div style="padding:4px 0;border-bottom:1px solid var(--bdr);font-family:monospace">'+esc(n.exit_address)+' <span style="color:var(--t3)">('+esc(n.fingerprint.substring(0,8))+'...)</span></div>').join('')}}}}catch(e){{document.getElementById('ml-status').innerHTML='<span style="color:var(--danger-t)">❌ خطا</span>'}}}}
+document.addEventListener('DOMContentLoaded',()=>{{loadSubscribePage();document.querySelector('[data-pg="multilocation"]').addEventListener('click',loadMultiLocation)}});
 init();
 </script>
 </body></html>"""
