@@ -822,7 +822,10 @@ app.include_router(xhttp_router)
 # ══════════════════════════════════════════════════════════════════════════════
 from gaming_optimizer import get_optimizer, remove_optimizer, get_all_optimizers, get_gaming_profiles
 from bandwidth_saver import get_bandwidth_report, get_global_bandwidth_report
-from multi_location import location_manager, generate_worker_config, generate_wrangler_commands
+from multi_location import (
+    get_workers, get_worker_url, get_best_worker,
+    check_all_workers, add_worker, remove_worker,
+)
 
 # ══════════════════════════════════════════════════════════════════════════════
 # ربات مدیریت تلگرام (اختیاری — فقط اگه TELEGRAM_BOT_TOKEN ست شده باشه فعال می‌شه)
@@ -975,79 +978,56 @@ async def get_bandwidth_report_config(uuid: str, _=Depends(require_auth)):
 # ── Multi-Location API ───────────────────────────────────────────────────────
 @app.get("/api/locations")
 async def get_locations(_=Depends(require_auth)):
-    """لیست تمام لوکیشن‌ها"""
-    return location_manager.get_stats()
+    """لیست Worker ها"""
+    return get_workers()
 
 @app.get("/api/locations/active")
 async def get_active_locations(_=Depends(require_auth)):
-    """لوکیشن‌های فعال"""
-    return {"locations": location_manager.get_active_locations()}
+    """Worker های فعال"""
+    workers = get_workers()["active"]
+    active = {k: v for k, v in workers.items() if v.get("status") == "active"}
+    return {"workers": active}
 
 @app.get("/api/locations/best")
 async def get_best_location(_=Depends(require_auth)):
-    """بهترین لوکیشن بر اساس لیتنسی"""
-    best = location_manager.get_best_location()
+    """بهترین Worker بر اساس لیتنسی"""
+    best = get_best_worker()
     if best:
-        return {"location": best, "info": location_manager.locations[best]}
-    return {"location": None, "message": "no active locations"}
+        workers = get_workers()["active"]
+        return {"worker": best, "info": workers[best]}
+    return {"worker": None, "message": "no active workers"}
 
 @app.post("/api/locations/health-check")
 async def health_check_locations(_=Depends(require_auth)):
-    """بررسی سلامت تمام لوکیشن‌ها"""
-    results = await location_manager.health_check_all()
+    """بررسی سلامت تمام Worker ها"""
+    results = await check_all_workers()
     return {"results": results}
 
-@app.post("/api/locations/{location_id}/update")
-async def update_location(location_id: str, request: Request, _=Depends(require_auth)):
-    """آپدیت اطلاعات یک لوکیشن"""
-    body = await request.json()
-    if not location_manager.update_location(location_id, body):
-        raise HTTPException(status_code=404, detail="location not found")
-    return {"ok": True}
-
-@app.post("/api/locations/{location_id}/check")
-async def check_location(location_id: str, _=Depends(require_auth)):
-    """بررسی سلامت یک لوکیشن"""
-    result = await location_manager.check_location_health(location_id)
-    return result
-
 @app.post("/api/locations/add")
-async def add_location(request: Request, _=Depends(require_auth)):
-    """افزودن لوکیشن جدید"""
+async def add_new_worker(request: Request, _=Depends(require_auth)):
+    """افزودن Worker جدید"""
     body = await request.json()
-    location_id = body.get("id")
-    if not location_id:
-        raise HTTPException(status_code=400, detail="missing location id")
-    if not location_manager.add_location(location_id, body):
-        raise HTTPException(status_code=400, detail="location already exists")
+    worker_id = body.get("id")
+    if not worker_id:
+        raise HTTPException(status_code=400, detail="missing worker id")
+    if not add_worker(worker_id, body.get("name", worker_id), body.get("worker_url", ""), body.get("region", "auto"), body.get("flag", "🌐")):
+        raise HTTPException(status_code=400, detail="worker already exists")
     return {"ok": True}
 
-@app.delete("/api/locations/{location_id}")
-async def delete_location(location_id: str, _=Depends(require_auth)):
-    """حذف یک لوکیشن"""
-    if not location_manager.remove_location(location_id):
-        raise HTTPException(status_code=404, detail="location not found")
+@app.delete("/api/locations/{worker_id}")
+async def delete_worker(worker_id: str, _=Depends(require_auth)):
+    """حذف Worker"""
+    if not remove_worker(worker_id):
+        raise HTTPException(status_code=400, detail="cannot remove")
     return {"ok": True}
 
-@app.get("/api/locations/{location_id}/config")
-async def get_worker_config(location_id: str, request: Request, _=Depends(require_auth)):
-    """دریافت پیکربندی Worker برای یک لوکیشن"""
-    host = get_host(request)
-    origin_url = f"https://{host}"
-    config = generate_worker_config(location_id, origin_url)
-    if not config:
-        raise HTTPException(status_code=404, detail="location not found")
-    return config
-
-@app.get("/api/locations/{location_id}/deploy")
-async def get_deploy_commands(location_id: str, request: Request, _=Depends(require_auth)):
-    """دریافت دستورات دیپلوی برای یک لوکیشن"""
-    host = get_host(request)
-    origin_url = f"https://{host}"
-    commands = generate_wrangler_commands(location_id, origin_url)
-    if not commands:
-        raise HTTPException(status_code=404, detail="location not found")
-    return {"commands": commands}
+@app.get("/api/locations/{worker_id}/url")
+async def get_worker_url_endpoint(worker_id: str, _=Depends(require_auth)):
+    """دریافت آدرس Worker"""
+    url = get_worker_url(worker_id)
+    if not url:
+        raise HTTPException(status_code=404, detail="worker not found")
+    return {"worker_url": url}
 
 # ── HTML Pages (login + dashboard) ───────────────────────────────────────────
 from pages import LOGIN_HTML, DASHBOARD_HTML

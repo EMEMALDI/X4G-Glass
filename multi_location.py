@@ -1,267 +1,138 @@
 # multi_location.py
 # سیستم مسیریابی چندمکانی برای X4G-Glass
-# استفاده از Cloudflare Workers به عنوان edge nodes
+# Cloudflare Worker: https://restless-heart-cb0d.emem-32281.workers.dev
 
 import asyncio
 import time
 import httpx
-from dataclasses import dataclass, field
-from typing import Optional
 from datetime import datetime
 
-# ── لوکیشن‌های پشتیبانی‌شده ───────────────────────────────────────────────────
-LOCATIONS = {
-    "us-east": {
-        "name": "🇺🇸 آمریکا شرقی",
-        "region": "wnam",
-        "worker_url": "",
-        "flag": "🇺🇸",
+# ── Worker فعال ───────────────────────────────────────────────────────────────
+ACTIVE_WORKERS = {
+    "default": {
+        "id": "default",
+        "name": "🌐 Cloudflare Edge",
+        "worker_url": "https://restless-heart-cb0d.emem-32281.workers.dev",
+        "region": "auto",
+        "flag": "🌍",
+        "status": "unknown",
         "latency": 0,
-        "status": "inactive",
-    },
-    "us-west": {
-        "name": "🇺🇸 آمریکا غربی",
-        "region": "wnam",
-        "worker_url": "",
-        "flag": "🇺🇸",
-        "latency": 0,
-        "status": "inactive",
-    },
-    "eu-west": {
-        "name": "🇪🇺 اروپا غربی",
-        "region": "weur",
-        "worker_url": "",
-        "flag": "🇪🇺",
-        "latency": 0,
-        "status": "inactive",
-    },
-    "eu-east": {
-        "name": "🇪🇺 اروپا شرقی",
-        "region": "eeur",
-        "worker_url": "",
-        "flag": "🇪🇺",
-        "latency": 0,
-        "status": "inactive",
-    },
-    "asia": {
-        "name": "🌏 آسیا",
-        "region": "apac",
-        "worker_url": "",
-        "flag": "🌏",
-        "latency": 0,
-        "status": "inactive",
-    },
-    "turkey": {
-        "name": "🇹🇷 ترکیه",
-        "region": "eeur",
-        "worker_url": "",
-        "flag": "🇹🇷",
-        "latency": 0,
-        "status": "inactive",
-    },
-    "germany": {
-        "name": "🇩🇪 آلمان",
-        "region": "weur",
-        "worker_url": "",
-        "flag": "🇩🇪",
-        "latency": 0,
-        "status": "inactive",
-    },
-    "france": {
-        "name": "🇫🇷 فرانسه",
-        "region": "weur",
-        "worker_url": "",
-        "flag": "🇫🇷",
-        "latency": 0,
-        "status": "inactive",
-    },
-    "singapore": {
-        "name": "🇸🇬 سنگاپور",
-        "region": "apac",
-        "worker_url": "",
-        "flag": "🇸🇬",
-        "latency": 0,
-        "status": "inactive",
-    },
-    "japan": {
-        "name": "🇯🇵 ژاپن",
-        "region": "apac",
-        "worker_url": "",
-        "flag": "🇯🇵",
-        "latency": 0,
-        "status": "inactive",
+        "last_check": None,
+        "colo": "",
+        "country": "",
     },
 }
 
-# ── کلاس مدیریت لوکیشن ──────────────────────────────────────────────────────
-@dataclass
-class LocationManager:
-    """مدیریت لوکیشن‌های Cloudflare Worker"""
-    
-    locations: dict = field(default_factory=lambda: dict(LOCATIONS))
-    health_check_interval: int = 60  # ثانیه
-    _last_health_check: float = 0
-    _http_client: Optional[httpx.AsyncClient] = None
-    
-    async def _get_client(self) -> httpx.AsyncClient:
-        if self._http_client is None or self._http_client.is_closed:
-            self._http_client = httpx.AsyncClient(
-                timeout=httpx.Timeout(10.0),
-                follow_redirects=True,
-            )
-        return self._http_client
-    
-    async def check_location_health(self, location_id: str) -> dict:
-        """بررسی سلامت یک لوکیشن"""
-        loc = self.locations.get(location_id)
-        if not loc or not loc.get("worker_url"):
-            return {"status": "inactive", "latency": 0}
-        
-        client = await self._get_client()
-        start_time = time.time()
-        
-        try:
-            response = await client.get(f"{loc['worker_url']}/health")
-            latency = (time.time() - start_time) * 1000  # میلی‌ثانیه
-            
-            if response.status_code == 200:
-                loc["status"] = "active"
-                loc["latency"] = round(latency, 2)
-                loc["last_check"] = datetime.now().isoformat()
-                return {"status": "active", "latency": loc["latency"]}
-            else:
-                loc["status"] = "error"
-                loc["latency"] = 0
-                return {"status": "error", "latency": 0}
-                
-        except Exception as e:
-            loc["status"] = "error"
-            loc["latency"] = 0
-            return {"status": "error", "latency": 0, "error": str(e)}
-    
-    async def health_check_all(self) -> dict:
-        """بررسی سلامت تمام لوکیشن‌ها"""
-        results = {}
-        for loc_id in self.locations:
-            results[loc_id] = await self.check_location_health(loc_id)
-        self._last_health_check = time.time()
-        return results
-    
-    def get_active_locations(self) -> dict:
-        """لیست لوکیشن‌های فعال"""
-        return {
-            k: v for k, v in self.locations.items()
-            if v.get("status") == "active" and v.get("worker_url")
-        }
-    
-    def get_best_location(self) -> Optional[str]:
-        """بهترین لوکیشن بر اساس لیتنسی"""
-        active = self.get_active_locations()
-        if not active:
-            return None
-        return min(active.keys(), key=lambda k: active[k].get("latency", float('inf')))
-    
-    def get_location_by_region(self, region: str) -> Optional[str]:
-        """پیدا کردن لوکیشن بر اساس منطقه"""
-        for loc_id, loc in self.locations.items():
-            if loc.get("region") == region and loc.get("status") == "active":
-                return loc_id
-        return None
-    
-    def update_location(self, location_id: str, data: dict) -> bool:
-        """آپدیت اطلاعات یک لوکیشن"""
-        if location_id not in self.locations:
-            return False
-        self.locations[location_id].update(data)
-        return True
-    
-    def add_location(self, location_id: str, data: dict) -> bool:
-        """افزودن لوکیشن جدید"""
-        if location_id in self.locations:
-            return False
-        self.locations[location_id] = {
-            "name": data.get("name", location_id),
-            "region": data.get("region", "auto"),
-            "worker_url": data.get("worker_url", ""),
-            "flag": data.get("flag", "🌐"),
-            "latency": 0,
-            "status": "inactive",
-        }
-        return True
-    
-    def remove_location(self, location_id: str) -> bool:
-        """حذف یک لوکیشن"""
-        if location_id not in self.locations:
-            return False
-        del self.locations[location_id]
-        return True
-    
-    def get_stats(self) -> dict:
-        """آمار کلی"""
-        active = self.get_active_locations()
-        return {
-            "total_locations": len(self.locations),
-            "active_locations": len(active),
-            "inactive_locations": len(self.locations) - len(active),
-            "locations": {
-                k: {
-                    "name": v["name"],
-                    "status": v["status"],
-                    "latency": v.get("latency", 0),
-                    "worker_url": v.get("worker_url", ""),
-                }
-                for k, v in self.locations.items()
-            },
-            "last_health_check": self._last_health_check,
-        }
-    
-    async def close(self):
-        """بستن اتصال HTTP"""
-        if self._http_client and not self._http_client.is_closed:
-            await self._http_client.aclose()
+# ── لوکیشن‌های پیشنهادی برای دیپلوی بعدی ─────────────────────────────────────
+SUGGESTED_LOCATIONS = [
+    {"id": "us", "name": "🇺🇸 آمریکا", "flag": "🇺🇸", "region": "wnam"},
+    {"id": "eu", "name": "🇪🇺 اروپا", "flag": "🇪🇺", "region": "weur"},
+    {"id": "asia", "name": "🌏 آسیا", "flag": "🌏", "region": "apac"},
+    {"id": "turkey", "name": "🇹🇷 ترکیه", "flag": "🇹🇷", "region": "eeur"},
+    {"id": "germany", "name": "🇩🇪 آلمان", "flag": "🇩🇪", "region": "weur"},
+]
+
+# ── HTTP Client ───────────────────────────────────────────────────────────────
+_http_client: httpx.AsyncClient | None = None
 
 
-# ── نمونه سراسری ─────────────────────────────────────────────────────────────
-location_manager = LocationManager()
+async def _get_client() -> httpx.AsyncClient:
+    global _http_client
+    if _http_client is None or _http_client.is_closed:
+        _http_client = httpx.AsyncClient(timeout=httpx.Timeout(10.0))
+    return _http_client
 
 
-# ── توابع کمکی ───────────────────────────────────────────────────────────────
-def get_worker_url_for_location(location_id: str) -> str:
-    """دریافت آدرس Worker برای یک لوکیشن"""
-    loc = location_manager.locations.get(location_id)
-    if loc and loc.get("worker_url"):
-        return loc["worker_url"]
-    return ""
+# ── Health Check ──────────────────────────────────────────────────────────────
+async def check_worker_health(worker_id: str = "default") -> dict:
+    """بررسی سلامت یک Worker"""
+    worker = ACTIVE_WORKERS.get(worker_id)
+    if not worker:
+        return {"status": "not_found"}
+
+    client = await _get_client()
+    start = time.time()
+
+    try:
+        resp = await client.get(f"{worker['worker_url']}/health")
+        latency = round((time.time() - start) * 1000, 1)
+
+        if resp.status_code == 200:
+            data = resp.json()
+            worker["status"] = "active"
+            worker["latency"] = latency
+            worker["colo"] = data.get("colo", "")
+            worker["country"] = data.get("country", "")
+            worker["last_check"] = datetime.now().isoformat()
+            worker["origin_status"] = data.get("origin", "unknown")
+            return {"status": "active", "latency": latency, **data}
+        else:
+            worker["status"] = "error"
+            worker["latency"] = 0
+            return {"status": "error"}
+
+    except Exception as e:
+        worker["status"] = "unreachable"
+        worker["latency"] = 0
+        return {"status": "unreachable", "error": str(e)}
 
 
-def generate_worker_config(location_id: str, origin_url: str) -> dict:
-    """تولید پیکربندی Worker برای یک لوکیشن"""
-    loc = location_manager.locations.get(location_id)
-    if not loc:
-        return {}
-    
+async def check_all_workers() -> dict:
+    """بررسی سلامت تمام Worker ها"""
+    results = {}
+    for wid in ACTIVE_WORKERS:
+        results[wid] = await check_worker_health(wid)
+    return results
+
+
+# ── Manager ───────────────────────────────────────────────────────────────────
+def get_workers() -> dict:
+    """لیست تمام Worker ها"""
     return {
-        "name": f"x4g-{location_id}",
-        "main": "x4g-worker.js",
-        "compatibility_date": "2024-01-01",
-        "vars": {
-            "ORIGIN_URL": origin_url,
-            "REGION": loc.get("region", "auto"),
-            "GAMING_MODE": "false",
-            "COMPRESS_RESPONSE": "true",
-        },
+        "active": ACTIVE_WORKERS,
+        "suggested": SUGGESTED_LOCATIONS,
     }
 
 
-def generate_wrangler_commands(location_id: str, origin_url: str) -> list:
-    """تولید دستورات wrangler برای دیپلوی"""
-    config = generate_worker_config(location_id, origin_url)
-    if not config:
-        return []
-    
-    return [
-        f"# دیپلوی Worker برای {location_id}",
-        f"wrangler deploy --name {config['name']}",
-        f"# یا با پیکربندی سفارشی:",
-        f"wrangler deploy --name {config['name']} --compatibility-date 2024-01-01",
-    ]
+def get_worker_url(worker_id: str = "default") -> str:
+    """آدرس یک Worker"""
+    w = ACTIVE_WORKERS.get(worker_id)
+    return w["worker_url"] if w else ""
+
+
+def get_best_worker() -> str | None:
+    """بهترین Worker بر اساس لیتنسی"""
+    active = {k: v for k, v in ACTIVE_WORKERS.items() if v["status"] == "active"}
+    if not active:
+        return None
+    return min(active, key=lambda k: active[k]["latency"])
+
+
+def add_worker(worker_id: str, name: str, worker_url: str, region: str = "auto", flag: str = "🌐") -> bool:
+    """افزودن Worker جدید"""
+    if worker_id in ACTIVE_WORKERS:
+        return False
+    ACTIVE_WORKERS[worker_id] = {
+        "id": worker_id,
+        "name": name,
+        "worker_url": worker_url,
+        "region": region,
+        "flag": flag,
+        "status": "unknown",
+        "latency": 0,
+        "last_check": None,
+    }
+    return True
+
+
+def remove_worker(worker_id: str) -> bool:
+    """حذف Worker"""
+    if worker_id == "default":
+        return False  # پیش‌فرض رو نمی‌شه حذف کرد
+    return ACTIVE_WORKERS.pop(worker_id, None) is not None
+
+
+async def close():
+    global _http_client
+    if _http_client and not _http_client.is_closed:
+        await _http_client.aclose()
