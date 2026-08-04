@@ -12,7 +12,7 @@ from collections import deque, defaultdict
 from pathlib import Path
 
 from fastapi import FastAPI, Request, HTTPException, WebSocket, WebSocketDisconnect, Depends
-from fastapi.responses import Response, HTMLResponse, JSONResponse, RedirectResponse
+from fastapi.responses import Response, HTMLResponse, JSONResponse, RedirectResponse, PlainTextResponse
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 import httpx
@@ -890,11 +890,31 @@ async def get_categories():
     return {"categories": CATEGORIES}
 
 # ── Subscription Page (ساب‌پیج عمومی) ─────────────────────────────────────────
-@app.get("/subscribe/{token}", response_class=HTMLResponse)
+@app.get("/subscribe/{token}")
 async def subscription_page(token: str, request: Request):
-    """ساب‌پیج عمومی - کاربر با توکن می‌تونه لینک‌هاش رو ببینه"""
-    from subscribe_page import get_subscribe_page_html
-    return HTMLResponse(content=get_subscribe_page_html(token))
+    """ساب‌پیج عمومی - VPN client لینک خام، مرورگر صفحه HTML"""
+    import base64
+    ua = request.headers.get("user-agent", "").lower()
+    is_vpn = any(k in ua for k in ["v2ray", "hiddify", "sing-box", "clash", "shadowrocket", "streisand", "necro", "v2rayng", "faomi"])
+    
+    if is_vpn:
+        # VPN client → لیست VLESS لینک‌ها
+        uuids = [u.strip() for u in token.split(",") if u.strip()]
+        host = get_host(request)
+        links_text = []
+        async with LINKS_LOCK:
+            for uid in uuids:
+                link = LINKS.get(uid)
+                if link and is_link_allowed(link):
+                    vless = vless_link_for_link(link, uid, host)
+                    links_text.append(vless)
+        if not links_text:
+            raise HTTPException(status_code=404, detail="no active configs")
+        return PlainTextResponse("\n".join(links_text))
+    else:
+        # مرورگر → صفحه HTML
+        from subscribe_page import get_subscribe_page_html
+        return HTMLResponse(content=get_subscribe_page_html(token))
 
 @app.get("/api/subscribe/{token}")
 async def subscription_data(token: str, request: Request):
