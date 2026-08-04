@@ -129,6 +129,18 @@ SUBS_LOCK = asyncio.Lock()
 PROTOCOLS = ("vless-ws", "xhttp")
 DEFAULT_PROTOCOL = "vless-ws"
 
+# دسته‌بندی کانفیگ‌ها (Categories)
+CATEGORIES = {
+    "gaming": {"label": "🎮 گیمینگ", "color": "#ff4466", "desc": "بهینه‌شده برای بازی‌های آنلاین"},
+    "streaming": {"label": "📺 استریمینگ", "color": "#a855f7", "desc": "مناسب پخش ویدیو و موسیقی"},
+    "browsing": {"label": "🌐 مرورگر", "color": "#00d4ff", "desc": "برای وب‌گردی و شبکه‌های اجتماعی"},
+    "social": {"label": "💬 شبکه اجتماعی", "color": "#00ff88", "desc": "تلگرام، اینستاگرام و..."},
+    "download": {"label": "📥 دانلود", "color": "#ffaa00", "desc": "دانلود فایل با سرعت بالا"},
+    "vip": {"label": "⭐ VIP", "color": "#ffd700", "desc": "کانفیگ‌های ویژه با اولویت بالا"},
+    "economy": {"label": "💰 اقتصادی", "color": "#00cc88", "desc": "مصرف کم، مناسب برای حجم‌های پایین"},
+}
+DEFAULT_CATEGORY = "browsing"
+
 # Fingerprint (uTLS) های قابل انتخاب برای هر کانفیگ
 FINGERPRINTS = ("chrome", "firefox", "safari", "ios", "android", "edge", "360", "qq", "random", "randomized")
 DEFAULT_FINGERPRINT = "chrome"
@@ -585,6 +597,8 @@ async def make_link(
     speed_limit_bytes: int = 0,
     gaming_mode: bool = False,
     gaming_profile: str = "",
+    category: str = DEFAULT_CATEGORY,
+    bandwidth_saver: bool = False,
 ) -> tuple[str, dict]:
     if protocol not in PROTOCOLS:
         protocol = DEFAULT_PROTOCOL
@@ -593,6 +607,8 @@ async def make_link(
         fingerprint = DEFAULT_FINGERPRINT
     if not (MIN_PORT <= port <= MAX_PORT):
         port = DEFAULT_PORT
+    if category not in CATEGORIES:
+        category = DEFAULT_CATEGORY
     uid = generate_uuid()
     async with LINKS_LOCK:
         LINKS[uid] = {
@@ -612,6 +628,8 @@ async def make_link(
             "speed_limit_bytes": max(0, speed_limit_bytes),
             "gaming_mode": bool(gaming_mode),
             "gaming_profile": (gaming_profile or "").strip()[:50],
+            "category": category,
+            "bandwidth_saver": bool(bandwidth_saver),
         }
     asyncio.create_task(save_state())
     log_activity("link", f"کانفیگ «{LINKS[uid]['label']}» ساخته شد", "ok")
@@ -672,6 +690,8 @@ async def create_link(request: Request, _=Depends(require_auth)):
         speed_limit_bytes=speed_limit_bytes,
         gaming_mode=bool(body.get("gaming_mode")),
         gaming_profile=(body.get("gaming_profile") or "").strip()[:50],
+        category=(body.get("category") or DEFAULT_CATEGORY).strip(),
+        bandwidth_saver=bool(body.get("bandwidth_saver")),
     )
 
     host = get_host(request)
@@ -757,7 +777,13 @@ async def update_link(uid: str, request: Request, _=Depends(require_auth)):
             link["gaming_mode"] = bool(body["gaming_mode"])
         if "gaming_profile" in body:
             link["gaming_profile"] = (body.get("gaming_profile") or "").strip()[:50]
-        if any(k in body for k in ("label", "note", "limit_value", "expires_days", "fingerprint", "alpn", "port", "ip_limit", "speed_limit_value", "gaming_mode", "gaming_profile")):
+        if "category" in body:
+            cat = (body.get("category") or DEFAULT_CATEGORY).strip()
+            if cat in CATEGORIES:
+                link["category"] = cat
+        if "bandwidth_saver" in body:
+            link["bandwidth_saver"] = bool(body["bandwidth_saver"])
+        if any(k in body for k in ("label", "note", "limit_value", "expires_days", "fingerprint", "alpn", "port", "ip_limit", "speed_limit_value", "gaming_mode", "gaming_profile", "category", "bandwidth_saver")):
             log_activity("link", f"کانفیگ «{link['label']}» ویرایش شد", "info")
 
     asyncio.create_task(save_state())
@@ -790,6 +816,12 @@ app.add_api_websocket_route("/ws/{uuid}", websocket_tunnel)
 # ══════════════════════════════════════════════════════════════════════════════
 from xhttp_siz10 import router as xhttp_router
 app.include_router(xhttp_router)
+
+# ══════════════════════════════════════════════════════════════════════════════
+# بهینه‌سازی گیمینگ و پهنای باند
+# ══════════════════════════════════════════════════════════════════════════════
+from gaming_optimizer import get_optimizer, remove_optimizer, get_all_optimizers, get_gaming_profiles
+from bandwidth_saver import get_bandwidth_report, get_global_bandwidth_report
 
 # ══════════════════════════════════════════════════════════════════════════════
 # ربات مدیریت تلگرام (اختیاری — فقط اگه TELEGRAM_BOT_TOKEN ست شده باشه فعال می‌شه)
@@ -865,6 +897,79 @@ async def public_sub_data(uuid_key: str, request: Request):
         "total_used_fmt": fmt_bytes(link.get("used_bytes", 0)),
         "links": [link_out],
     }
+
+# ── Categories API ────────────────────────────────────────────────────────────
+@app.get("/api/categories")
+async def get_categories():
+    return {"categories": CATEGORIES}
+
+# ── Subscription Page (ساب‌پیج عمومی) ─────────────────────────────────────────
+@app.get("/subscribe/{token}", response_class=HTMLResponse)
+async def subscription_page(token: str, request: Request):
+    """ساب‌پیج عمومی - کاربر با توکن می‌تونه لینک‌هاش رو ببینه"""
+    from subscribe_page import get_subscribe_page_html
+    return HTMLResponse(content=get_subscribe_page_html(token))
+
+@app.get("/api/subscribe/{token}")
+async def subscription_data(token: str, request: Request):
+    """داده‌های ساب‌پیج - لیست لینک‌ها بر اساس توکن"""
+    host = get_host(request)
+    # توکن شامل اطلاعات کاربر هست (ساده‌شده - در عمل باید رمزنگاری بشه)
+    # فعلاً توکن = لیست UUID ها جدا شده با کاما
+    uuids = [u.strip() for u in token.split(",") if u.strip()]
+    if not uuids:
+        raise HTTPException(status_code=400, detail="invalid token")
+
+    result = []
+    async with LINKS_LOCK:
+        for uid in uuids:
+            link = LINKS.get(uid)
+            if not link or not is_link_allowed(link):
+                continue
+            proto = link.get("protocol", DEFAULT_PROTOCOL)
+            conn_count = sum(1 for c in connections.values() if c.get("uuid") == uid)
+            result.append({
+                "uuid": uid,
+                "label": link["label"],
+                "category": link.get("category", DEFAULT_CATEGORY),
+                "category_label": CATEGORIES.get(link.get("category", DEFAULT_CATEGORY), {}).get("label", "🌐"),
+                "protocol": proto,
+                "active": True,
+                "used_bytes": link.get("used_bytes", 0),
+                "used_fmt": fmt_bytes(link.get("used_bytes", 0)),
+                "limit_bytes": link.get("limit_bytes", 0),
+                "limit_fmt": "∞" if link.get("limit_bytes", 0) == 0 else fmt_bytes(link["limit_bytes"]),
+                "expires_at": link.get("expires_at"),
+                "vless_link": vless_link_for_link(link, uid, host),
+                "sub_url": f"https://{host}/sub/{uid}",
+                "connections": conn_count,
+                "bandwidth_saver": link.get("bandwidth_saver", False),
+                "gaming_mode": link.get("gaming_mode", False),
+            })
+
+    return {
+        "token": token,
+        "configs": result,
+        "total": len(result),
+        "support_url": "https://t.me/X4GHUB",
+    }
+
+# ── Gaming Profiles API ───────────────────────────────────────────────────────
+@app.get("/api/gaming/profiles")
+async def get_gaming_profiles_api(_=Depends(require_auth)):
+    return {"profiles": get_gaming_profiles()}
+
+@app.get("/api/gaming/stats")
+async def get_gaming_stats(_=Depends(require_auth)):
+    return {"optimizers": get_all_optimizers()}
+
+@app.get("/api/bandwidth/report")
+async def get_bandwidth_report_api(_=Depends(require_auth)):
+    return get_global_bandwidth_report()
+
+@app.get("/api/bandwidth/report/{uuid}")
+async def get_bandwidth_report_config(uuid: str, _=Depends(require_auth)):
+    return get_bandwidth_report(uuid)
 
 # ── HTML Pages (login + dashboard) ───────────────────────────────────────────
 from pages import LOGIN_HTML, DASHBOARD_HTML
