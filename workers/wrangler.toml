@@ -1,0 +1,31 @@
+name = "x4g-glass-worker"
+main = "x4g-worker.js"
+compatibility_date = "2024-01-01"
+
+# منطقه پیش‌فرض (auto = نزدیک‌ترین edge)
+# برای تغییر منطقه، این مقدار رو عوض کنید:
+# wnam = آمریکای شمالی, enam = آمریکای جنوبی
+# weur = اروپای غربی, eeur = اروپای شرقی
+# apac = آسیا-اقیانوسیه, oc = اقیانوسیه
+
+[vars]
+ORIGIN_URL = "https://YOUR_X4GGLASS_URL.railway.app"
+REGION = "auto"
+GAMING_MODE = "false"
+COMPRESS_RESPONSE = "true"
+
+# مثال برای دیپلوی چند منطقه‌ای:
+# نسخه آمریکای شمالی:
+# [env.us]
+# name = "x4g-glass-us"
+# vars = { REGION = "wnam" }
+#
+# نسخه اروپا:
+# [env.eu]
+# name = "x4g-glass-eu"
+# vars = { REGION = "weur" }
+#
+# نسخه آسیا:
+# [env.asia]
+# name = "x4g-glass-asia"
+# vars = { REGION = "apac" }
