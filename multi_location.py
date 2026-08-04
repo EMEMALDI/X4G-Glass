@@ -80,7 +80,7 @@ async def get_worker_stats() -> dict:
 
 async def health_check() -> dict:
     """سلامت Worker"""
-    return await worker_request("/health")
+    return await worker_request("/stats")
 
 
 # ── بستن اتصال ───────────────────────────────────────────────────────────────

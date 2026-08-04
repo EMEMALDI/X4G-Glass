@@ -920,23 +920,27 @@ a{color:inherit;text-decoration:none}
   </div>
 </section>
 <section class="pg" id="pg-subscribe">
-  <div class="topbar"><div><div class="tb-title"><i class="ti ti-rss"></i> ساب‌پیج اشتراک</div></div></div>
+  <div class="topbar"><div><div class="tb-title"><i class="ti ti-rss"></i> ساخت ساب</div></div></div>
   <div class="srv-panel">
-    <div class="srv-hero"><div class="srv-hero-icon"><i class="ti ti-rss"></i></div><div class="srv-hero-text"><div class="srv-hero-domain">ساب‌پیج X4G</div><div class="srv-hero-sub"><span class="dot dg pulse"></span> لینک اشتراک کانفیگ‌ها</div></div></div>
-    <div id="sub-page-content" style="padding:16px">
+    <div class="srv-hero"><div class="srv-hero-icon"><i class="ti ti-rss"></i></div><div class="srv-hero-text"><div class="srv-hero-domain">ساب‌ساز X4G</div><div class="srv-hero-sub"><span class="dot dg pulse"></span> کانفیگ‌های مورد نظر رو انتخاب کن و ساب بساز</div></div></div>
+    <div style="padding:16px">
       <div style="background:var(--card);border:1px solid var(--bdr);border-radius:12px;padding:20px;margin-bottom:16px">
-        <div style="font-weight:700;font-size:14px;margin-bottom:8px"><i class="ti ti-link"></i> لینک ساب‌پیج</div>
-        <div style="display:flex;gap:8px;align-items:center">
-          <input class="cp-input-full" id="sub-link" readonly style="flex:1;font-size:12px;font-family:monospace">
-          <button class="btn btn-p" onclick="copySubLink()"><i class="ti ti-copy"></i> کپی</button>
+        <div style="font-weight:700;font-size:14px;margin-bottom:12px"><i class="ti ti-list-check"></i> انتخاب کانفیگ‌ها</div>
+        <div id="sub-links-list" style="max-height:350px;overflow-y:auto"></div>
+        <div style="margin-top:12px;display:flex;gap:8px">
+          <button class="btn btn-p" onclick="buildSubscription()"><i class="ti ti-link-plus"></i> ساخت لینک ساب</button>
+          <button class="btn btn-o" onclick="selectAllSubLinks(true)">انتخاب همه</button>
+          <button class="btn btn-o" onclick="selectAllSubLinks(false)">حذف انتخاب</button>
         </div>
       </div>
-      <div style="background:var(--card);border:1px solid var(--bdr);border-radius:12px;padding:20px">
-        <div style="font-weight:700;font-size:14px;margin-bottom:8px"><i class="ti ti-info-circle"></i> راهنما</div>
-        <div style="font-size:12px;color:var(--t2);line-height:1.8">
-          <p>این لینک رو در اپ‌های VPN مثل <b>v2rayNG</b>, <b>NekoBox</b>, <b>Hiddify</b> وارد کنید.</p>
-          <p>لیست تمام کانفیگ‌های فعال شما رو دریافت می‌کنه.</p>
-          <p>هر بار رفرش، آخرین کانفیگ‌ها رو میاره.</p>
+      <div id="sub-result" style="display:none;background:var(--card);border:1px solid var(--bdr);border-radius:12px;padding:20px">
+        <div style="font-weight:700;font-size:14px;margin-bottom:8px"><i class="ti ti-link"></i> لینک ساب شما</div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <input class="cp-input-full" id="sub-link-output" readonly style="flex:1;font-size:11px;font-family:monospace">
+          <button class="btn btn-p" onclick="copySubOutput()"><i class="ti ti-copy"></i></button>
+        </div>
+        <div style="margin-top:12px;font-size:11px;color:var(--t3)">
+          ✅ این لینک رو در <b>v2rayNG</b>, <b>NekoBox</b>, <b>Hiddify</b> وارد کنید
         </div>
       </div>
     </div>
@@ -1208,11 +1212,16 @@ function renderContent(d){{const ac=d.links.filter(l=>l.active).length;const su=
 function copyAll(){{const l=window._x4gLinks||[];if(!l.length)return;navigator.clipboard.writeText(l.map(x=>x.vless).join('\\n')).then(()=>toast('همه‌ی '+toFa(l.length)+' کانفیگ کپی شد ✓','ok'))}}
 async function autoRefresh(){{try{{const d=await loadData(savedPw);if(!d.locked)renderContent(d)}}catch(e){{}}}}
 async function init(){{try{{const d=await loadData();if(d.locked){{renderLock(d.name);return}}renderContent(d)}}catch(e){{document.getElementById('root').innerHTML='<div class="empty-state" style="color:var(--danger-t)"><i class="ti ti-alert-circle"></i>خطا</div>'}}}}
-function copySubLink(){{const el=document.getElementById('sub-link');if(el.value)navigator.clipboard.writeText(el.value).then(()=>toast('کپی شد ✓','ok'))}}
-function loadSubscribePage(){{const btn=document.querySelector('[data-pg="subscribe"]');btn.addEventListener('click',()=>{{const token=localStorage.getItem('x4g-token')||'';document.getElementById('sub-link').value=window.location.origin+'/subscribe/'+token}})}}
+const selectedSubLinks=new Set();
+function loadSubLinksList(){{const el=document.getElementById('sub-links-list');if(!el)return;if(!window.allLinksList||!allLinksList.length){{el.innerHTML='<div style="color:var(--t3);font-size:12px">کانفیگی وجود ندارد</div>';return}}el.innerHTML=allLinksList.map(l=>`<label style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-bottom:1px solid var(--bdr);cursor:pointer;font-size:12px"><input type="checkbox" value="${{l.uuid}}" ${{selectedSubLinks.has(l.uuid)?'checked':''}} onchange="toggleSubLink('${{l.uuid}}',this.checked)"><span style="flex:1"><b>${{esc(l.label)}}</b> <span style="color:var(--t3)">${{esc(l.category||'browsing')}}</span></span><span style="color:var(--t3);font-size:10px">${{l.active?'🟢':'🔴'}}</span></label>`).join('')}}
+function toggleSubLink(uuid,checked){{if(checked)selectedSubLinks.add(uuid);else selectedSubLinks.delete(uuid)}}
+function selectAllSubLinks(sel){{selectedSubLinks.clear();if(sel)allLinksList.forEach(l=>selectedSubLinks.add(l.uuid));loadSubLinksList()}}
+function buildSubscription(){{if(!selectedSubLinks.size)return toast('اول کانفیگ انتخاب کن','err');const token=Array.from(selectedSubLinks).join(',');const url=window.location.origin+'/subscribe/'+token;document.getElementById('sub-link-output').value=url;document.getElementById('sub-result').style.display='block';toast(selectedSubLinks.size+' کانفیگ ساب شد ✓','ok')}}
+function copySubOutput(){{const el=document.getElementById('sub-link-output');if(el.value)navigator.clipboard.writeText(el.value).then(()=>toast('کپی شد ✓','ok'))}}
+document.querySelector('[data-pg="subscribe"]').addEventListener('click',loadSubLinksList);
 async function mlScanIp(){{const ip=document.getElementById('ml-scan-ip').value.trim();if(!ip)return;const el=document.getElementById('ml-scan-result');el.innerHTML='<span style="color:var(--accent)">در حال اسکن...</span>';try{{const r=await fetch('/api/locations/lookup/'+ip);const d=await r.json();if(d.location){{el.innerHTML='<div style="color:var(--success-t)">✅ <b>'+esc(ip)+'</b><br>📍 '+esc(d.location.country)+' · '+esc(d.location.city)+'<br>🏢 '+esc(d.isp?.name||'—')+'</div>'}}else{{el.innerHTML='<span style="color:var(--warning-t)">⚠️ اطلاعاتی یافت نشد</span>'}}}}catch(e){{el.innerHTML='<span style="color:var(--danger-t)">❌ خطا</span>'}}}}
-async function loadMultiLocation(){{try{{const r=await fetch('/api/locations');const d=await r.json();document.getElementById('ml-status').innerHTML='<span style="color:var(--success-t)">✅ آنلاین</span>';document.getElementById('ml-stats').textContent=d.worker_url?'Connected':'—';const nr=await fetch('/api/locations/exit-nodes');const nd=await nr.json();const el=document.getElementById('ml-exit-nodes');if(nd.nodes){{el.innerHTML='<div style="margin-bottom:8px;color:var(--t2)">تعداد: <b>'+toFa(nd.total)+'</b></div>'+nd.nodes.slice(0,20).map(n=>'<div style="padding:4px 0;border-bottom:1px solid var(--bdr);font-family:monospace">'+esc(n.exit_address)+' <span style="color:var(--t3)">('+esc(n.fingerprint.substring(0,8))+'...)</span></div>').join('')}}}}catch(e){{document.getElementById('ml-status').innerHTML='<span style="color:var(--danger-t)">❌ خطا</span>'}}}}
-document.addEventListener('DOMContentLoaded',()=>{{loadSubscribePage();document.querySelector('[data-pg="multilocation"]').addEventListener('click',loadMultiLocation)}});
+async function loadMultiLocation(){{try{{const r=await fetch('/api/locations/active');const d=await r.json();if(d.success){{document.getElementById('ml-status').innerHTML='<span style="color:var(--success-t)">✅ آنلاین</span>';document.getElementById('ml-stats').textContent='Total Requests: '+toFa(d.stats.totalRequests)}}else{{document.getElementById('ml-status').innerHTML='<span style="color:var(--danger-t)">❌ قطع</span>'}}const nr=await fetch('/api/locations/exit-nodes');const nd=await nr.json();const el=document.getElementById('ml-exit-nodes');if(nd.nodes){{el.innerHTML='<div style="margin-bottom:8px;color:var(--t2)">تعداد: <b>'+toFa(nd.total)+'</b></div>'+nd.nodes.slice(0,20).map(n=>'<div style="padding:4px 0;border-bottom:1px solid var(--bdr);font-family:monospace">'+esc(n.exit_address)+' <span style="color:var(--t3)">('+esc(n.fingerprint.substring(0,8))+'...)</span></div>').join('')}}}}catch(e){{document.getElementById('ml-status').innerHTML='<span style="color:var(--danger-t)">❌ خطا</span>'}}}}
+document.addEventListener('DOMContentLoaded',()=>{{document.querySelector('[data-pg="multilocation"]').addEventListener('click',loadMultiLocation)}});
 init();
 </script>
 </body></html>"""
