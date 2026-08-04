@@ -1,138 +1,90 @@
 # multi_location.py
-# سیستم مسیریابی چندمکانی برای X4G-Glass
-# Cloudflare Worker: https://restless-heart-cb0d.emem-32281.workers.dev
+# اتصال X4G-Glass به Cloudflare Worker
+# Worker: https://restless-heart-cb0d.emem-32281.workers.dev
 
-import asyncio
-import time
 import httpx
-from datetime import datetime
+import time
 
-# ── Worker فعال ───────────────────────────────────────────────────────────────
-ACTIVE_WORKERS = {
-    "default": {
-        "id": "default",
-        "name": "🌐 Cloudflare Edge",
-        "worker_url": "https://restless-heart-cb0d.emem-32281.workers.dev",
-        "region": "auto",
-        "flag": "🌍",
-        "status": "unknown",
-        "latency": 0,
-        "last_check": None,
-        "colo": "",
-        "country": "",
-    },
-}
+WORKER_URL = "https://restless-heart-cb0d.emem-32281.workers.dev"
 
-# ── لوکیشن‌های پیشنهادی برای دیپلوی بعدی ─────────────────────────────────────
-SUGGESTED_LOCATIONS = [
-    {"id": "us", "name": "🇺🇸 آمریکا", "flag": "🇺🇸", "region": "wnam"},
-    {"id": "eu", "name": "🇪🇺 اروپا", "flag": "🇪🇺", "region": "weur"},
-    {"id": "asia", "name": "🌏 آسیا", "flag": "🌏", "region": "apac"},
-    {"id": "turkey", "name": "🇹🇷 ترکیه", "flag": "🇹🇷", "region": "eeur"},
-    {"id": "germany", "name": "🇩🇪 آلمان", "flag": "🇩🇪", "region": "weur"},
-]
-
-# ── HTTP Client ───────────────────────────────────────────────────────────────
-_http_client: httpx.AsyncClient | None = None
+# ── اتصال به Worker ──────────────────────────────────────────────────────────
+_client: httpx.AsyncClient | None = None
 
 
 async def _get_client() -> httpx.AsyncClient:
-    global _http_client
-    if _http_client is None or _http_client.is_closed:
-        _http_client = httpx.AsyncClient(timeout=httpx.Timeout(10.0))
-    return _http_client
+    global _client
+    if _client is None or _client.is_closed:
+        _client = httpx.AsyncClient(timeout=httpx.Timeout(15.0))
+    return _client
 
 
-# ── Health Check ──────────────────────────────────────────────────────────────
-async def check_worker_health(worker_id: str = "default") -> dict:
-    """بررسی سلامت یک Worker"""
-    worker = ACTIVE_WORKERS.get(worker_id)
-    if not worker:
-        return {"status": "not_found"}
-
+async def worker_request(path: str, method: str = "GET", data: dict = None) -> dict:
+    """درخواست به Worker"""
     client = await _get_client()
-    start = time.time()
+    url = f"{WORKER_URL}{path}"
 
     try:
-        resp = await client.get(f"{worker['worker_url']}/health")
-        latency = round((time.time() - start) * 1000, 1)
+        if method == "GET":
+            resp = await client.get(url)
+        elif method == "POST":
+            resp = await client.post(url, json=data)
+        else:
+            return {"error": f"method {method} not supported"}
 
         if resp.status_code == 200:
-            data = resp.json()
-            worker["status"] = "active"
-            worker["latency"] = latency
-            worker["colo"] = data.get("colo", "")
-            worker["country"] = data.get("country", "")
-            worker["last_check"] = datetime.now().isoformat()
-            worker["origin_status"] = data.get("origin", "unknown")
-            return {"status": "active", "latency": latency, **data}
+            return resp.json()
         else:
-            worker["status"] = "error"
-            worker["latency"] = 0
-            return {"status": "error"}
+            return {"error": f"HTTP {resp.status_code}"}
 
     except Exception as e:
-        worker["status"] = "unreachable"
-        worker["latency"] = 0
-        return {"status": "unreachable", "error": str(e)}
+        return {"error": str(e)}
 
 
-async def check_all_workers() -> dict:
-    """بررسی سلامت تمام Worker ها"""
-    results = {}
-    for wid in ACTIVE_WORKERS:
-        results[wid] = await check_worker_health(wid)
-    return results
+# ── توابع آماده ───────────────────────────────────────────────────────────────
+async def check_tor(ip: str = None) -> dict:
+    """بررسی Tor/Proxy"""
+    if ip:
+        return await worker_request("/tor-check", "POST", {"ip": ip})
+    return await worker_request("/tor-check")
 
 
-# ── Manager ───────────────────────────────────────────────────────────────────
-def get_workers() -> dict:
-    """لیست تمام Worker ها"""
-    return {
-        "active": ACTIVE_WORKERS,
-        "suggested": SUGGESTED_LOCATIONS,
-    }
+async def scan_ips(ips: list, ports: list = None) -> dict:
+    """اسکن آی‌پی‌ها"""
+    return await worker_request("/scan", "POST", {"ips": ips, "ports": ports or [80, 443]})
 
 
-def get_worker_url(worker_id: str = "default") -> str:
-    """آدرس یک Worker"""
-    w = ACTIVE_WORKERS.get(worker_id)
-    return w["worker_url"] if w else ""
+async def lookup_ip(ip: str) -> dict:
+    """اطلاعات آی‌پی"""
+    return await worker_request(f"/lookup?ip={ip}")
 
 
-def get_best_worker() -> str | None:
-    """بهترین Worker بر اساس لیتنسی"""
-    active = {k: v for k, v in ACTIVE_WORKERS.items() if v["status"] == "active"}
-    if not active:
-        return None
-    return min(active, key=lambda k: active[k]["latency"])
+async def detect_ip(ip: str) -> dict:
+    """تشخیص VPN/Proxy/Tor"""
+    return await worker_request(f"/detect?ip={ip}")
 
 
-def add_worker(worker_id: str, name: str, worker_url: str, region: str = "auto", flag: str = "🌐") -> bool:
-    """افزودن Worker جدید"""
-    if worker_id in ACTIVE_WORKERS:
-        return False
-    ACTIVE_WORKERS[worker_id] = {
-        "id": worker_id,
-        "name": name,
-        "worker_url": worker_url,
-        "region": region,
-        "flag": flag,
-        "status": "unknown",
-        "latency": 0,
-        "last_check": None,
-    }
-    return True
+async def get_exit_nodes() -> dict:
+    """لیست Exit Node های Tor"""
+    return await worker_request("/exit-nodes")
 
 
-def remove_worker(worker_id: str) -> bool:
-    """حذف Worker"""
-    if worker_id == "default":
-        return False  # پیش‌فرض رو نمی‌شه حذف کرد
-    return ACTIVE_WORKERS.pop(worker_id, None) is not None
+async def get_countries() -> dict:
+    """لیست کشورها"""
+    return await worker_request("/countries")
 
 
+async def get_worker_stats() -> dict:
+    """آمار Worker"""
+    return await worker_request("/stats")
+
+
+async def health_check() -> dict:
+    """سلامت Worker"""
+    return await worker_request("/health")
+
+
+# ── بستن اتصال ───────────────────────────────────────────────────────────────
 async def close():
-    global _http_client
-    if _http_client and not _http_client.is_closed:
-        await _http_client.aclose()
+    global _client
+    if _client and not _client.is_closed:
+        await _client.aclose()

@@ -823,8 +823,8 @@ app.include_router(xhttp_router)
 from gaming_optimizer import get_optimizer, remove_optimizer, get_all_optimizers, get_gaming_profiles
 from bandwidth_saver import get_bandwidth_report, get_global_bandwidth_report
 from multi_location import (
-    get_workers, get_worker_url, get_best_worker,
-    check_all_workers, add_worker, remove_worker,
+    WORKER_URL, check_tor, scan_ips, lookup_ip, detect_ip,
+    get_exit_nodes, get_countries, get_worker_stats, health_check,
 )
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -978,57 +978,49 @@ async def get_bandwidth_report_config(uuid: str, _=Depends(require_auth)):
 # ── Multi-Location API ───────────────────────────────────────────────────────
 @app.get("/api/locations")
 async def get_locations(_=Depends(require_auth)):
-    """لیست Worker ها"""
-    return get_workers()
+    """آدرس Worker"""
+    return {"worker_url": WORKER_URL}
 
 @app.get("/api/locations/active")
 async def get_active_locations(_=Depends(require_auth)):
-    """Worker های فعال"""
-    workers = get_workers()["active"]
-    active = {k: v for k, v in workers.items() if v.get("status") == "active"}
-    return {"workers": active}
+    """سلامت Worker"""
+    return await health_check()
 
 @app.get("/api/locations/best")
 async def get_best_location(_=Depends(require_auth)):
-    """بهترین Worker بر اساس لیتنسی"""
-    best = get_best_worker()
-    if best:
-        workers = get_workers()["active"]
-        return {"worker": best, "info": workers[best]}
-    return {"worker": None, "message": "no active workers"}
+    """آمار Worker"""
+    return await get_worker_stats()
 
 @app.post("/api/locations/health-check")
 async def health_check_locations(_=Depends(require_auth)):
-    """بررسی سلامت تمام Worker ها"""
-    results = await check_all_workers()
-    return {"results": results}
+    """بررسی Tor"""
+    return await check_tor()
 
-@app.post("/api/locations/add")
-async def add_new_worker(request: Request, _=Depends(require_auth)):
-    """افزودن Worker جدید"""
+@app.post("/api/locations/scan")
+async def scan_ips_endpoint(request: Request, _=Depends(require_auth)):
+    """اسکن آی‌پی‌ها"""
     body = await request.json()
-    worker_id = body.get("id")
-    if not worker_id:
-        raise HTTPException(status_code=400, detail="missing worker id")
-    if not add_worker(worker_id, body.get("name", worker_id), body.get("worker_url", ""), body.get("region", "auto"), body.get("flag", "🌐")):
-        raise HTTPException(status_code=400, detail="worker already exists")
-    return {"ok": True}
+    return await scan_ips(body.get("ips", []), body.get("ports"))
 
-@app.delete("/api/locations/{worker_id}")
-async def delete_worker(worker_id: str, _=Depends(require_auth)):
-    """حذف Worker"""
-    if not remove_worker(worker_id):
-        raise HTTPException(status_code=400, detail="cannot remove")
-    return {"ok": True}
+@app.get("/api/locations/lookup/{ip}")
+async def lookup_ip_endpoint(ip: str, _=Depends(require_auth)):
+    """اطلاعات آی‌پی"""
+    return await lookup_ip(ip)
 
-@app.get("/api/locations/{worker_id}/url")
-async def get_worker_url_endpoint(worker_id: str, _=Depends(require_auth)):
-    """دریافت آدرس Worker"""
-    url = get_worker_url(worker_id)
-    if not url:
-        raise HTTPException(status_code=404, detail="worker not found")
-    return {"worker_url": url}
+@app.get("/api/locations/detect/{ip}")
+async def detect_ip_endpoint(ip: str, _=Depends(require_auth)):
+    """تشخیص VPN/Proxy/Tor"""
+    return await detect_ip(ip)
 
+@app.get("/api/locations/exit-nodes")
+async def exit_nodes_endpoint(_=Depends(require_auth)):
+    """لیست Exit Node های Tor"""
+    return await get_exit_nodes()
+
+@app.get("/api/locations/countries")
+async def countries_endpoint(_=Depends(require_auth)):
+    """لیست کشورها"""
+    return await get_countries()
 # ── HTML Pages (login + dashboard) ───────────────────────────────────────────
 from pages import LOGIN_HTML, DASHBOARD_HTML
 
