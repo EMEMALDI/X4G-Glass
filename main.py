@@ -799,7 +799,9 @@ from relay_vless import (
     websocket_tunnel,
 )
 
-app.add_api_websocket_route("/ws/{uuid}", websocket_tunnel)
+@app.websocket("/ws/{uuid}")
+async def ws_endpoint(ws: WebSocket, uuid: str):
+    return await websocket_tunnel(ws, uuid)
 
 # ══════════════════════════════════════════════════════════════════════════════
 # XHTTP — Siz10a XHTTP Ultra (ترابرد جدید، جدا از VLESS/WS، هر ۳ مد)
