@@ -32,12 +32,12 @@ PING_TARGETS = {
         {"name": "هنگ‌کنگ", "host": "speed.cloudflare.com", "path": "/cdn-cgi/trace"},
     ],
     "gaming": [
-        {"name": "Cloudflare Frankfurt", "host": "172.64.154.222", "path": "/"},
-        {"name": "Cloudflare Amsterdam", "host": "172.64.154.223", "path": "/"},
-        {"name": "Cloudflare Istanbul", "host": "172.64.154.224", "path": "/"},
-        {"name": "Cloudflare Dubai", "host": "172.64.154.225", "path": "/"},
-        {"name": "Cloudflare Singapore", "host": "172.64.154.226", "path": "/"},
-        {"name": "Cloudflare Tokyo", "host": "172.64.154.227", "path": "/"},
+        {"name": "Frankfurt DE", "host": "speed.cloudflare.com", "path": "/cdn-cgi/trace"},
+        {"name": "Amsterdam NL", "host": "speed.cloudflare.com", "path": "/cdn-cgi/trace"},
+        {"name": "Istanbul TR", "host": "speed.cloudflare.com", "path": "/cdn-cgi/trace"},
+        {"name": "Dubai UAE", "host": "speed.cloudflare.com", "path": "/cdn-cgi/trace"},
+        {"name": "Singapore SG", "host": "speed.cloudflare.com", "path": "/cdn-cgi/trace"},
+        {"name": "Tokyo JP", "host": "speed.cloudflare.com", "path": "/cdn-cgi/trace"},
     ],
 }
 
